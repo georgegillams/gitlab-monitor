@@ -1,0 +1,24 @@
+{
+  "originHash" : "c6cfaae7cad7d4866dd0d94faaa4fc8a016e7ffca5ec22b8ceaa886bb916c225",
+  "pins" : [
+    {
+      "identity" : "components-swiftui",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/georgegillams/components-swiftUI",
+      "state" : {
+        "revision" : "3d683fdfdcd85ccf59aeb385e1e411da6f3adc3a",
+        "version" : "1.0.0"
+      }
+    },
+    {
+      "identity" : "launchatlogin-modern",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/sindresorhus/LaunchAtLogin-Modern",
+      "state" : {
+        "revision" : "a04ec1c363be3627734f6dad757d82f5d4fa8fcc",
+        "version" : "1.1.0"
+      }
+    }
+  ],
+  "version" : 3
+}

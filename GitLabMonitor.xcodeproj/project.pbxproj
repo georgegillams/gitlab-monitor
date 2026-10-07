@@ -1,0 +1,476 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		A10000012DA7000100GLMN01 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000012DA7000100GLMN01 /* AppDelegate.swift */; };
+		A10000022DA7000100GLMN01 /* AppDelegate+StatusBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000022DA7000100GLMN01 /* AppDelegate+StatusBar.swift */; };
+		A10000032DA7000100GLMN01 /* Bundle+Version.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000032DA7000100GLMN01 /* Bundle+Version.swift */; };
+		A10000102DA7000100GLMN01 /* Debug.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000112DA7000100GLMN01 /* Debug.swift */; };
+		A10000042DA7000100GLMN01 /* AppSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000042DA7000100GLMN01 /* AppSettings.swift */; };
+		A10000052DA7000100GLMN01 /* MergeRequestModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000052DA7000100GLMN01 /* MergeRequestModels.swift */; };
+		A10000062DA7000100GLMN01 /* KeychainStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000062DA7000100GLMN01 /* KeychainStore.swift */; };
+		A10000072DA7000100GLMN01 /* GitLabAPIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000072DA7000100GLMN01 /* GitLabAPIClient.swift */; };
+		A10000082DA7000100GLMN01 /* RefreshCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000082DA7000100GLMN01 /* RefreshCoordinator.swift */; };
+		A10000092DA7000100GLMN01 /* PopoverView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000092DA7000100GLMN01 /* PopoverView.swift */; };
+		A100000A2DA7000100GLMN01 /* MRRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A200000A2DA7000100GLMN01 /* MRRowView.swift */; };
+		A10000132DA7000100GLMN01 /* HoverTooltip.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000132DA7000100GLMN01 /* HoverTooltip.swift */; };
+		A10000142DA7000100GLMN01 /* GitLabStatusIcon.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000142DA7000100GLMN01 /* GitLabStatusIcon.swift */; };
+		A100000B2DA7000100GLMN01 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A200000B2DA7000100GLMN01 /* SettingsView.swift */; };
+		A100000C2DA7000100GLMN01 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A200000C2DA7000100GLMN01 /* Assets.xcassets */; };
+		A10000112DA7000100GLMN01 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = A20000122DA7000100GLMN01 /* Main.storyboard */; };
+		A100000D2DA7000100GLMN01 /* LaunchAtLogin in Frameworks */ = {isa = PBXBuildFile; productRef = A30000012DA7000100GLMN01 /* LaunchAtLogin */; };
+		A100000E2DA7000100GLMN01 /* components-swiftUI in Frameworks */ = {isa = PBXBuildFile; productRef = A30000022DA7000100GLMN01 /* components-swiftUI */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		A20000012DA7000100GLMN01 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		A20000022DA7000100GLMN01 /* AppDelegate+StatusBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppDelegate+StatusBar.swift"; sourceTree = "<group>"; };
+		A20000032DA7000100GLMN01 /* Bundle+Version.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Bundle+Version.swift"; sourceTree = "<group>"; };
+		A20000112DA7000100GLMN01 /* Debug.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Debug.swift; sourceTree = "<group>"; };
+		A20000042DA7000100GLMN01 /* AppSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppSettings.swift; sourceTree = "<group>"; };
+		A20000052DA7000100GLMN01 /* MergeRequestModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MergeRequestModels.swift; sourceTree = "<group>"; };
+		A20000062DA7000100GLMN01 /* KeychainStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainStore.swift; sourceTree = "<group>"; };
+		A20000072DA7000100GLMN01 /* GitLabAPIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GitLabAPIClient.swift; sourceTree = "<group>"; };
+		A20000082DA7000100GLMN01 /* RefreshCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RefreshCoordinator.swift; sourceTree = "<group>"; };
+		A20000092DA7000100GLMN01 /* PopoverView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PopoverView.swift; sourceTree = "<group>"; };
+		A200000A2DA7000100GLMN01 /* MRRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MRRowView.swift; sourceTree = "<group>"; };
+		A20000132DA7000100GLMN01 /* HoverTooltip.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HoverTooltip.swift; sourceTree = "<group>"; };
+		A20000142DA7000100GLMN01 /* GitLabStatusIcon.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GitLabStatusIcon.swift; sourceTree = "<group>"; };
+		A200000B2DA7000100GLMN01 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		A200000C2DA7000100GLMN01 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		A20000122DA7000100GLMN01 /* Main.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Main.storyboard; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		A200000D2DA7000100GLMN01 /* GitLabMonitor.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = GitLabMonitor.entitlements; sourceTree = "<group>"; };
+		A200000E2DA7000100GLMN01 /* GitLabMonitor-Release.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "GitLabMonitor-Release.entitlements"; sourceTree = "<group>"; };
+		A200000F2DA7000100GLMN01 /* GitLabMonitor.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = GitLabMonitor.app; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		A40000012DA7000100GLMN01 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A100000D2DA7000100GLMN01 /* LaunchAtLogin in Frameworks */,
+				A100000E2DA7000100GLMN01 /* components-swiftUI in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		A50000012DA7000100GLMN01 = {
+			isa = PBXGroup;
+			children = (
+				A50000022DA7000100GLMN01 /* GitLabMonitor */,
+				A50000032DA7000100GLMN01 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		A50000022DA7000100GLMN01 /* GitLabMonitor */ = {
+			isa = PBXGroup;
+			children = (
+				A20000012DA7000100GLMN01 /* AppDelegate.swift */,
+				A20000022DA7000100GLMN01 /* AppDelegate+StatusBar.swift */,
+				A50000042DA7000100GLMN01 /* Models */,
+				A50000052DA7000100GLMN01 /* Services */,
+				A50000062DA7000100GLMN01 /* Views */,
+				A50000072DA7000100GLMN01 /* Utils */,
+				A50000082DA7000100GLMN01 /* Trunk */,
+				A200000C2DA7000100GLMN01 /* Assets.xcassets */,
+			);
+			path = GitLabMonitor;
+			sourceTree = "<group>";
+		};
+		A50000032DA7000100GLMN01 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				A200000F2DA7000100GLMN01 /* GitLabMonitor.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		A50000042DA7000100GLMN01 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				A20000042DA7000100GLMN01 /* AppSettings.swift */,
+				A20000052DA7000100GLMN01 /* MergeRequestModels.swift */,
+				A20000112DA7000100GLMN01 /* Debug.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		A50000052DA7000100GLMN01 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				A20000062DA7000100GLMN01 /* KeychainStore.swift */,
+				A20000072DA7000100GLMN01 /* GitLabAPIClient.swift */,
+				A20000082DA7000100GLMN01 /* RefreshCoordinator.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		A50000062DA7000100GLMN01 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				A20000092DA7000100GLMN01 /* PopoverView.swift */,
+				A200000A2DA7000100GLMN01 /* MRRowView.swift */,
+				A20000132DA7000100GLMN01 /* HoverTooltip.swift */,
+				A20000142DA7000100GLMN01 /* GitLabStatusIcon.swift */,
+				A200000B2DA7000100GLMN01 /* SettingsView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		A50000072DA7000100GLMN01 /* Utils */ = {
+			isa = PBXGroup;
+			children = (
+				A20000032DA7000100GLMN01 /* Bundle+Version.swift */,
+			);
+			path = Utils;
+			sourceTree = "<group>";
+		};
+		A50000082DA7000100GLMN01 /* Trunk */ = {
+			isa = PBXGroup;
+			children = (
+				A20000122DA7000100GLMN01 /* Main.storyboard */,
+				A200000D2DA7000100GLMN01 /* GitLabMonitor.entitlements */,
+				A200000E2DA7000100GLMN01 /* GitLabMonitor-Release.entitlements */,
+			);
+			path = Trunk;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		A60000012DA7000100GLMN01 /* GitLabMonitor */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A70000032DA7000100GLMN01 /* Build configuration list for PBXNativeTarget "GitLabMonitor" */;
+			buildPhases = (
+				A60000022DA7000100GLMN01 /* Sources */,
+				A40000012DA7000100GLMN01 /* Frameworks */,
+				A60000032DA7000100GLMN01 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = GitLabMonitor;
+			packageProductDependencies = (
+				A30000012DA7000100GLMN01 /* LaunchAtLogin */,
+				A30000022DA7000100GLMN01 /* components-swiftUI */,
+			);
+			productName = GitLabMonitor;
+			productReference = A200000F2DA7000100GLMN01 /* GitLabMonitor.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		A80000012DA7000100GLMN01 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1500;
+				LastUpgradeCheck = 1500;
+				TargetAttributes = {
+					A60000012DA7000100GLMN01 = {
+						CreatedOnToolsVersion = 15.0;
+					};
+				};
+			};
+			buildConfigurationList = A70000012DA7000100GLMN01 /* Build configuration list for PBXProject "GitLabMonitor" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = A50000012DA7000100GLMN01;
+			packageReferences = (
+				A90000012DA7000100GLMN01 /* XCRemoteSwiftPackageReference "LaunchAtLogin-Modern" */,
+				A90000022DA7000100GLMN01 /* XCRemoteSwiftPackageReference "components-swiftUI" */,
+			);
+			productRefGroup = A50000032DA7000100GLMN01 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				A60000012DA7000100GLMN01 /* GitLabMonitor */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		A60000032DA7000100GLMN01 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A100000C2DA7000100GLMN01 /* Assets.xcassets in Resources */,
+				A10000112DA7000100GLMN01 /* Main.storyboard in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		A60000022DA7000100GLMN01 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A10000012DA7000100GLMN01 /* AppDelegate.swift in Sources */,
+				A10000022DA7000100GLMN01 /* AppDelegate+StatusBar.swift in Sources */,
+				A10000032DA7000100GLMN01 /* Bundle+Version.swift in Sources */,
+				A10000102DA7000100GLMN01 /* Debug.swift in Sources */,
+				A10000042DA7000100GLMN01 /* AppSettings.swift in Sources */,
+				A10000052DA7000100GLMN01 /* MergeRequestModels.swift in Sources */,
+				A10000062DA7000100GLMN01 /* KeychainStore.swift in Sources */,
+				A10000072DA7000100GLMN01 /* GitLabAPIClient.swift in Sources */,
+				A10000082DA7000100GLMN01 /* RefreshCoordinator.swift in Sources */,
+				A10000092DA7000100GLMN01 /* PopoverView.swift in Sources */,
+				A100000A2DA7000100GLMN01 /* MRRowView.swift in Sources */,
+				A10000132DA7000100GLMN01 /* HoverTooltip.swift in Sources */,
+				A10000142DA7000100GLMN01 /* GitLabStatusIcon.swift in Sources */,
+				A100000B2DA7000100GLMN01 /* SettingsView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		A70000112DA7000100GLMN01 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 13.3;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		A70000122DA7000100GLMN01 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 13.3;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+			};
+			name = Release;
+		};
+		A70000132DA7000100GLMN01 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = GitLabMonitor/Trunk/GitLabMonitor.entitlements;
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = F2NH4J9NYG;
+				ENABLE_DEBUG_DYLIB = NO;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "GitLab Monitor (Local)";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.developer-tools";
+				INFOPLIST_KEY_LSUIElement = YES;
+				INFOPLIST_KEY_NSMainStoryboardFile = Main;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "uk.co.georgegillams.gitlab-monitor.mac-os.local";
+				PRODUCT_MODULE_NAME = GitLabMonitor;
+				PRODUCT_NAME = "GitLab Monitor Local";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		A70000142DA7000100GLMN01 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = GitLabMonitor/Trunk/GitLabMonitor-Release.entitlements;
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = F2NH4J9NYG;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "GitLab Monitor";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.developer-tools";
+				INFOPLIST_KEY_LSUIElement = YES;
+				INFOPLIST_KEY_NSMainStoryboardFile = Main;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "uk.co.georgegillams.gitlab-monitor.mac-os";
+				PRODUCT_MODULE_NAME = GitLabMonitor;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		A70000012DA7000100GLMN01 /* Build configuration list for PBXProject "GitLabMonitor" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A70000112DA7000100GLMN01 /* Debug */,
+				A70000122DA7000100GLMN01 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A70000032DA7000100GLMN01 /* Build configuration list for PBXNativeTarget "GitLabMonitor" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A70000132DA7000100GLMN01 /* Debug */,
+				A70000142DA7000100GLMN01 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		A90000012DA7000100GLMN01 /* XCRemoteSwiftPackageReference "LaunchAtLogin-Modern" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/sindresorhus/LaunchAtLogin-Modern";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.1.0;
+			};
+		};
+		A90000022DA7000100GLMN01 /* XCRemoteSwiftPackageReference "components-swiftUI" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/georgegillams/components-swiftUI";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.0.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		A30000012DA7000100GLMN01 /* LaunchAtLogin */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = A90000012DA7000100GLMN01 /* XCRemoteSwiftPackageReference "LaunchAtLogin-Modern" */;
+			productName = LaunchAtLogin;
+		};
+		A30000022DA7000100GLMN01 /* components-swiftUI */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = A90000022DA7000100GLMN01 /* XCRemoteSwiftPackageReference "components-swiftUI" */;
+			productName = "components-swiftUI";
+		};
+/* End XCSwiftPackageProductDependency section */
+	};
+	rootObject = A80000012DA7000100GLMN01 /* Project object */;
+}
