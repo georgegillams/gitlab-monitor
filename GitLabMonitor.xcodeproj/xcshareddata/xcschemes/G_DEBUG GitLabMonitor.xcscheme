@@ -15,8 +15,8 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "A60000012DA7000100GLMN01"
-               BuildableName = "GitLabMonitor.app"
-               BlueprintName = "GitLabMonitor"
+               BuildableName = "GitLab Monitor.app"
+               BlueprintName = "GitLab Monitor"
                ReferencedContainer = "container:GitLabMonitor.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -44,8 +44,8 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "A60000012DA7000100GLMN01"
-            BuildableName = "GitLabMonitor.app"
-            BlueprintName = "GitLabMonitor"
+            BuildableName = "GitLab Monitor.app"
+            BlueprintName = "GitLab Monitor"
             ReferencedContainer = "container:GitLabMonitor.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
@@ -67,8 +67,8 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "A60000012DA7000100GLMN01"
-            BuildableName = "GitLabMonitor.app"
-            BlueprintName = "GitLabMonitor"
+            BuildableName = "GitLab Monitor.app"
+            BlueprintName = "GitLab Monitor"
             ReferencedContainer = "container:GitLabMonitor.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>

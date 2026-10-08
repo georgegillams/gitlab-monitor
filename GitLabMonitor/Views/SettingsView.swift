@@ -11,6 +11,7 @@ import components_swiftUI
 struct SettingsView: View {
     @ObservedObject var settings: AppSettings
     @ObservedObject var coordinator: RefreshCoordinator
+    @ObservedObject var menuShortcutMonitor: MenuShortcutMonitor
     var onInstancesChanged: () -> Void = {}
 
     @State private var launchAtLogin = LaunchAtLogin.isEnabled
@@ -119,6 +120,26 @@ struct SettingsView: View {
                     LaunchAtLogin.isEnabled = value
                 }
 
+                LabeledContent {
+                    ShortcutRecorder(
+                        shortcut: $settings.menuShortcut,
+                        monitor: menuShortcutMonitor
+                    )
+                } label: {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Popover shortcut")
+                        Text("Show or hide the popover from any app. Unset until you choose one.")
+                            .font(.caption)
+                            .foregroundStyle(Semantic.Colors.textDisabled)
+                    }
+                }
+
+                if let registrationError = menuShortcutMonitor.registrationError {
+                    Text(registrationError)
+                        .font(.caption)
+                        .foregroundStyle(Semantic.Colors.statusDestructive)
+                }
+
                 Toggle(isOn: conventionalCommitTitles) {
                     VStack(alignment: .leading, spacing: 2) {
                         Text("Conventional commit titles")
@@ -150,7 +171,8 @@ struct SettingsView: View {
         }
         .formStyle(.grouped)
         .scrollContentBackground(.hidden)
-        .padding(Primitive.Layout.spacingBase)
+        .padding(.horizontal, Primitive.Layout.spacingBase)
+        .padding(.bottom, Primitive.Layout.spacingBase)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
     }
 
@@ -257,7 +279,10 @@ private struct InstanceEditor: View {
             TextField("GitLab URL", text: $baseURL)
                 .textFieldStyle(.roundedBorder)
                 .onSubmit(commitMetadata)
-                .onChange(of: baseURL) { _ in commitMetadata() }
+                .onChange(of: baseURL) { _ in
+                    normalizeBaseURLScheme()
+                    commitMetadata()
+                }
 
             LabeledContent("Bearer token") {
                 SecureTokenField(
@@ -273,7 +298,18 @@ private struct InstanceEditor: View {
                 )
             }
 
-            HStack(alignment: .center) {
+            HStack(alignment: .center, spacing: Primitive.Layout.spacingSm) {
+                Button {
+                    guard let url = personalAccessTokensURL else { return }
+                    NSWorkspace.shared.open(url)
+                } label: {
+                    Label("Manage tokens", systemImage: "key")
+                }
+                .disabled(personalAccessTokensURL == nil)
+                .help(personalAccessTokensURL == nil
+                    ? "Enter a GitLab URL to open its token page"
+                    : "Open personal access tokens in your browser")
+
                 InstanceStatusBadge(status: connectionStatus)
                 Spacer(minLength: Primitive.Layout.spacingSm)
                 if canRemove {
@@ -301,7 +337,67 @@ private struct InstanceEditor: View {
         .onAppear {
             label = instance.label
             baseURL = instance.baseURL
+            normalizeBaseURLScheme()
+            if baseURL != instance.baseURL {
+                commitMetadata()
+            }
         }
+    }
+
+    /// Personal access tokens page for the URL currently in the field.
+    /// Requires https. Nil when the field is empty, still on http, or not a usable GitLab URL.
+    private var personalAccessTokensURL: URL? {
+        Self.personalAccessTokensURL(from: baseURL)
+    }
+
+    static func personalAccessTokensURL(from rawBaseURL: String) -> URL? {
+        var value = rawBaseURL.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !value.isEmpty else { return nil }
+
+        let lowercased = value.lowercased()
+        if lowercased.hasPrefix("http://") {
+            return nil
+        }
+        if !lowercased.hasPrefix("https://") {
+            value = "https://\(value)"
+        }
+
+        guard var components = URLComponents(string: value),
+              let host = components.host,
+              !host.isEmpty else {
+            return nil
+        }
+        components.scheme = "https"
+        components.query = nil
+        components.fragment = nil
+        var path = components.percentEncodedPath
+        if path == "/" {
+            path = ""
+        }
+        while path.hasSuffix("/") {
+            path.removeLast()
+        }
+        components.percentEncodedPath = path + "/-/user_settings/personal_access_tokens"
+        return components.url
+    }
+
+    /// Rewrites `http://` to `https://` in the URL field as the value is edited.
+    private func normalizeBaseURLScheme() {
+        let secured = Self.replacingHTTPSchemeWithHTTPS(baseURL)
+        if secured != baseURL {
+            baseURL = secured
+        }
+    }
+
+    static func replacingHTTPSchemeWithHTTPS(_ rawBaseURL: String) -> String {
+        let lowercased = rawBaseURL.lowercased()
+        guard lowercased.hasPrefix("http://") else { return rawBaseURL }
+        var value = rawBaseURL
+        value.replaceSubrange(
+            value.startIndex..<value.index(value.startIndex, offsetBy: "http://".count),
+            with: "https://"
+        )
+        return value
     }
 
     /// Empty URL or token is not configured.
@@ -323,6 +419,7 @@ private struct InstanceEditor: View {
     }
 
     private func commitMetadata() {
+        normalizeBaseURLScheme()
         var updated = instance
         updated.label = label
         updated.baseURL = baseURL

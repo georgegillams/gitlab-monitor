@@ -45,54 +45,6 @@ enum DebugMergeRequestFixtures {
 
     static let mergeRequests: [MergeRequestItem] = [
         item(
-            instanceID: gitlabComID,
-            instanceLabel: "GitLab.com",
-            projectID: 5200,
-            iid: 62,
-            title: "Stage icon follows a failed or running job when the other jobs differ",
-            projectPath: "acme/ci-status",
-            createdAt: date(hoursAgo: 0),
-            updatedAt: date(hoursAgo: 0),
-            webURL: "https://gitlab.com/acme/ci-status/-/merge_requests/62",
-            stages: aggregatedStages([
-                ("Failed, in progress, manual", [.failed, .inProgress, .manual]),
-                ("In progress, in progress, manual", [.inProgress, .inProgress, .manual]),
-                ("Paused, created, manual", [.paused, .created, .manual]),
-                ("Created, passed", [.created, .success]),
-                ("Unknown, passed, manual", [.unknown, .success, .manual])
-            ], idBase: 20_000),
-            approvals: ApprovalSummary(
-                approvedBy: [],
-                approvalsRequired: 1,
-                approvalsLeft: 1,
-                userHasApproved: false
-            )
-        ),
-        item(
-            instanceID: gitlabComID,
-            instanceLabel: "GitLab.com",
-            projectID: 5200,
-            iid: 61,
-            title: "Stage icon is passed when every job is passed, skipped, or manual",
-            projectPath: "acme/ci-status",
-            createdAt: date(hoursAgo: 0),
-            updatedAt: date(hoursAgo: 0),
-            webURL: "https://gitlab.com/acme/ci-status/-/merge_requests/61",
-            stages: aggregatedStages([
-                ("Passed, skipped, manual", [.success, .skipped, .manual]),
-                ("Manual, manual, skipped", [.manual, .manual, .skipped]),
-                ("Skipped, skipped", [.skipped, .skipped]),
-                ("Cancelled, skipped, manual", [.cancelled, .skipped, .manual]),
-                ("Passed, manual, cancelled", [.success, .manual, .cancelled])
-            ], idBase: 30_000),
-            approvals: ApprovalSummary(
-                approvedBy: [],
-                approvalsRequired: 1,
-                approvalsLeft: 1,
-                userHasApproved: false
-            )
-        ),
-        item(
             instanceID: acmeID,
             instanceLabel: "Acme GitLab",
             projectID: 860,
@@ -166,9 +118,11 @@ enum DebugMergeRequestFixtures {
             webURL: "https://gitlab.com/acme/payments-api/-/merge_requests/1837",
             stages: stages([
                 ("prepare", .created),
+                ("lint", .manual),
                 ("test", .failed),
                 ("security", .inProgress),
                 ("wait", .paused),
+                ("publish", .skipped),
                 ("notify", .cancelled),
                 ("docs", .unknown)
             ]),
@@ -235,42 +189,10 @@ enum DebugMergeRequestFixtures {
         pairs.enumerated().map { index, pair in
             let (name, status) = pair
             let jobID = 10_000 + index * 10
-            let jobs = sampleJobs(for: name, status: status, startingID: jobID)
-            let aggregated = PipelineStageStatus.aggregate(jobs.map(\.status))
-            precondition(
-                aggregated == status,
-                "Sample jobs for \(name) aggregate to \(aggregated), expected \(status)"
-            )
-            return PipelineStage(name: name, status: aggregated, jobs: jobs)
-        }
-    }
-
-    /// One stage per job mix. The icon is `aggregate` of those jobs, so the row shows the rule.
-    private static func aggregatedStages(
-        _ pairs: [(String, [PipelineStageStatus])],
-        idBase: Int
-    ) -> [PipelineStage] {
-        let base = "https://gitlab.com/acme/example/-/jobs"
-        return pairs.enumerated().map { index, pair in
-            let (name, statuses) = pair
-            let startingID = idBase + index * 10
-            var seen: [PipelineStageStatus: Int] = [:]
-            let jobs = statuses.enumerated().map { offset, status in
-                let occurrence = seen[status, default: 0] + 1
-                seen[status] = occurrence
-                let repeats = statuses.filter { $0 == status }.count > 1
-                let label = repeats ? "\(status.helpText) \(occurrence)" : status.helpText
-                return PipelineJob(
-                    id: startingID + offset,
-                    name: label,
-                    status: status,
-                    webURL: URL(string: "\(base)/\(startingID + offset)")
-                )
-            }
             return PipelineStage(
                 name: name,
-                status: PipelineStageStatus.aggregate(statuses),
-                jobs: jobs
+                status: status,
+                jobs: sampleJobs(for: name, status: status, startingID: jobID)
             )
         }
     }

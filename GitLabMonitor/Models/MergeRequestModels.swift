@@ -16,7 +16,8 @@ enum PipelineStageStatus: String, Codable, Equatable {
     case manual
     case unknown
 
-    static func fromGitLabJobStatus(_ status: String?) -> PipelineStageStatus {
+    /// Maps a job or stage status string from GitLab onto the icon set.
+    static func fromGitLabStatus(_ status: String?) -> PipelineStageStatus {
         switch (status ?? "").lowercased() {
         case "success", "success_with_warnings", "passed":
             return .success
@@ -24,7 +25,7 @@ enum PipelineStageStatus: String, Codable, Equatable {
             return .failed
         case "running", "preparing":
             return .inProgress
-        case "pending", "scheduled", "waiting_for_resource":
+        case "pending", "scheduled", "waiting_for_resource", "waiting_for_callback":
             return .paused
         case "manual":
             return .manual
@@ -37,34 +38,6 @@ enum PipelineStageStatus: String, Codable, Equatable {
         default:
             return .unknown
         }
-    }
-
-    /// Status shown for a stage, from the jobs in it.
-    ///
-    /// Failed and in-progress apply when any job has them. Failed wins.
-    /// Manual is ignored the same way skipped is. When every job is passed,
-    /// skipped, or manual, the stage is passed.
-    static func aggregate(_ statuses: [PipelineStageStatus]) -> PipelineStageStatus {
-        guard !statuses.isEmpty else { return .unknown }
-        if statuses.contains(.failed) { return .failed }
-        if statuses.contains(.inProgress) { return .inProgress }
-
-        if statuses.allSatisfy({ $0 == .success || $0 == .skipped || $0 == .manual }) {
-            return .success
-        }
-
-        let decisive = Set(statuses.filter { $0 != .skipped && $0 != .manual })
-        if decisive.count == 1, let only = decisive.first {
-            return only
-        }
-
-        // Queued or not-yet-started work still describes the stage when the
-        // jobs disagree. Passed and cancelled do not.
-        let priority: [PipelineStageStatus] = [.paused, .created, .unknown]
-        for candidate in priority where decisive.contains(candidate) {
-            return candidate
-        }
-        return .unknown
     }
 
     var helpText: String {

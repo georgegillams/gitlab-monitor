@@ -53,21 +53,20 @@ extension AppDelegate {
     /// Proportions match `GitLabStatusIcon`'s `.inProgress` layout and the `CIStatusRunning` glyph.
     private static let menuBarIcon: NSImage = {
         let side: CGFloat = 18
+        // Draw as opaque black so the composite can be a menu-bar template.
+        let glyph = (NSImage(named: "CIStatusRunning")?.copy() as? NSImage) ?? NSImage()
+        glyph.isTemplate = false
+
         let image = NSImage(size: NSSize(width: side, height: side), flipped: false) { rect in
             let inset: CGFloat = 0.75
             let canvas = min(rect.width, rect.height) - inset * 2
             let origin = NSPoint(x: rect.midX - canvas / 2, y: rect.midY - canvas / 2)
-            let scale = canvas / 22
-
-            func point(_ x: CGFloat, _ y: CGFloat) -> NSPoint {
-                // SVG y-down → AppKit y-up.
-                NSPoint(x: origin.x + x * scale, y: origin.y + (22 - y) * scale)
-            }
+            let canvasRect = NSRect(origin: origin, size: NSSize(width: canvas, height: canvas))
 
             NSColor.black.setFill()
 
             // Same 2/14 ring as the in-progress job icon.
-            let ring = NSBezierPath(ovalIn: NSRect(origin: origin, size: NSSize(width: canvas, height: canvas)))
+            let ring = NSBezierPath(ovalIn: canvasRect)
             let ringInset = canvas * 2 / 14
             ring.appendOval(in: NSRect(
                 x: origin.x + ringInset,
@@ -78,27 +77,7 @@ extension AppDelegate {
             ring.windingRule = .evenOdd
             ring.fill()
 
-            // CIStatusRunning wedge, viewBox 0 0 22 22.
-            let wedge = NSBezierPath()
-            wedge.move(to: point(11, 4.714))
-            wedge.curve(
-                to: point(17.286, 11),
-                controlPoint1: point(14.457, 4.714),
-                controlPoint2: point(17.286, 7.543)
-            )
-            wedge.curve(
-                to: point(11, 17.286),
-                controlPoint1: point(17.286, 14.457),
-                controlPoint2: point(14.457, 17.286)
-            )
-            wedge.curve(
-                to: point(5.814, 14.614),
-                controlPoint1: point(8.957, 17.286),
-                controlPoint2: point(7.071, 16.186)
-            )
-            wedge.line(to: point(11, 11))
-            wedge.close()
-            wedge.fill()
+            glyph.draw(in: canvasRect, from: .zero, operation: .sourceOver, fraction: 1)
 
             return true
         }
@@ -174,7 +153,13 @@ extension AppDelegate {
             self.positionStatusPanel(panel, under: button)
             self.ignoreFocusLossUntil = Date().addingTimeInterval(0.25)
             self.startEventMonitor()
-            panel.orderFront(nil)
+            // orderFront does nothing while this accessory app is inactive, which is the
+            // usual case when the popover shortcut fires from another app.
+            if NSApp.isActive {
+                panel.orderFront(nil)
+            } else {
+                panel.orderFrontRegardless()
+            }
             button.highlight(true)
             gDebugPrint("statusPanel shown frame=\(NSStringFromRect(panel.frame))")
         }
@@ -381,14 +366,18 @@ extension AppDelegate {
         panelDismissObservers.removeAll()
     }
 
-    @objc func openContextMenu() {
-        closeStatusPanel()
+    func openContextMenu() {
+        guard !isPresentingContextMenu else { return }
+        isPresentingContextMenu = true
+        defer { isPresentingContextMenu = false }
 
-        guard let button = statusBarItem.button else { return }
+        closeStatusPanel()
+        guard statusBarItem.button != nil else { return }
 
         let productName = Bundle.main.menuProductName
         let buildLabel = Bundle.main.menuBuildLabel
         let menu = NSMenu()
+        menu.delegate = self
 
         let settingsItem = NSMenuItem(
             title: "Settings…",
@@ -419,11 +408,22 @@ extension AppDelegate {
         quitItem.target = self
         menu.addItem(quitItem)
 
-        // Pop up directly. The old performClick + immediately clearing `statusItem.menu`
-        // races AppKit (and re-enters our mouseDown override), so the menu often never appears.
-        button.highlight(true)
-        menu.popUp(positioning: nil, at: NSPoint(x: 0, y: button.bounds.height), in: button)
-        button.highlight(false)
+        // `NSMenu.popUp(positioning:at:in:)` cancels immediately on a secondary click,
+        // so the menu never appears. `performClick` re-enters our mouseDown override.
+        // This is the status-item presenter, and it still tracks correctly from a right-click.
+        contextMenuDidOpen = false
+        presentStatusItemMenu(menu)
+    }
+
+    private func presentStatusItemMenu(_ menu: NSMenu) {
+        // `popUpMenu` is deprecated in favor of assigning `menu`, which can't be left
+        // assigned here: every click would open this menu, and `performClick` re-enters
+        // our `mouseDown` override. Call the status-item presenter directly.
+        let selector = NSSelectorFromString("popUpStatusItemMenu:")
+        guard let implementation = statusBarItem.method(for: selector) else { return }
+        typealias PresentMenu = @convention(c) (AnyObject, Selector, NSMenu) -> Void
+        let present = unsafeBitCast(implementation, to: PresentMenu.self)
+        present(statusBarItem, selector, menu)
     }
 
     func windowDidBecomeKey(_ notification: Notification) {
@@ -436,6 +436,7 @@ extension AppDelegate {
         let settingsUI = SettingsView(
             settings: settings,
             coordinator: refreshCoordinator,
+            menuShortcutMonitor: menuShortcutMonitor,
             onInstancesChanged: { [weak self] in
                 self?.refreshCoordinator.refresh(reason: .manual)
             }
@@ -509,6 +510,9 @@ extension NSStatusBarButton {
             super.mouseDown(with: event)
             return
         }
+        if appDelegate.isPresentingContextMenu {
+            return
+        }
         if event.modifierFlags.contains(.control) {
             appDelegate.openContextMenu()
             return
@@ -521,6 +525,25 @@ extension NSStatusBarButton {
             super.rightMouseDown(with: event)
             return
         }
+        // A menu opened while the button is still down can be cancelled before it
+        // appears. Mouse-up presents again if this attempt never opens.
+        appDelegate.contextMenuDidOpen = false
         appDelegate.openContextMenu()
+    }
+
+    open override func rightMouseUp(with event: NSEvent) {
+        guard let appDelegate = target as? AppDelegate else {
+            super.rightMouseUp(with: event)
+            return
+        }
+        defer { appDelegate.contextMenuDidOpen = false }
+        guard !appDelegate.contextMenuDidOpen else { return }
+        appDelegate.openContextMenu()
+    }
+}
+
+extension AppDelegate: NSMenuDelegate {
+    func menuWillOpen(_ menu: NSMenu) {
+        contextMenuDidOpen = true
     }
 }

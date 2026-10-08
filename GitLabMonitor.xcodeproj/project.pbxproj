@@ -21,6 +21,9 @@
 		A10000132DA7000100GLMN01 /* HoverTooltip.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000132DA7000100GLMN01 /* HoverTooltip.swift */; };
 		A10000142DA7000100GLMN01 /* GitLabStatusIcon.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000142DA7000100GLMN01 /* GitLabStatusIcon.swift */; };
 		A100000B2DA7000100GLMN01 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A200000B2DA7000100GLMN01 /* SettingsView.swift */; };
+		A10000152DA7000100GLMN01 /* MenuShortcut.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000152DA7000100GLMN01 /* MenuShortcut.swift */; };
+		A10000162DA7000100GLMN01 /* MenuShortcutMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000162DA7000100GLMN01 /* MenuShortcutMonitor.swift */; };
+		A10000172DA7000100GLMN01 /* ShortcutRecorder.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000172DA7000100GLMN01 /* ShortcutRecorder.swift */; };
 		A100000C2DA7000100GLMN01 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A200000C2DA7000100GLMN01 /* Assets.xcassets */; };
 		A10000112DA7000100GLMN01 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = A20000122DA7000100GLMN01 /* Main.storyboard */; };
 		A100000D2DA7000100GLMN01 /* LaunchAtLogin in Frameworks */ = {isa = PBXBuildFile; productRef = A30000012DA7000100GLMN01 /* LaunchAtLogin */; };
@@ -42,11 +45,14 @@
 		A20000132DA7000100GLMN01 /* HoverTooltip.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HoverTooltip.swift; sourceTree = "<group>"; };
 		A20000142DA7000100GLMN01 /* GitLabStatusIcon.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GitLabStatusIcon.swift; sourceTree = "<group>"; };
 		A200000B2DA7000100GLMN01 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		A20000152DA7000100GLMN01 /* MenuShortcut.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuShortcut.swift; sourceTree = "<group>"; };
+		A20000162DA7000100GLMN01 /* MenuShortcutMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuShortcutMonitor.swift; sourceTree = "<group>"; };
+		A20000172DA7000100GLMN01 /* ShortcutRecorder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShortcutRecorder.swift; sourceTree = "<group>"; };
 		A200000C2DA7000100GLMN01 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		A20000122DA7000100GLMN01 /* Main.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Main.storyboard; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		A200000D2DA7000100GLMN01 /* GitLabMonitor.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = GitLabMonitor.entitlements; sourceTree = "<group>"; };
 		A200000E2DA7000100GLMN01 /* GitLabMonitor-Release.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "GitLabMonitor-Release.entitlements"; sourceTree = "<group>"; };
-		A200000F2DA7000100GLMN01 /* GitLabMonitor.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = GitLabMonitor.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		A200000F2DA7000100GLMN01 /* GitLab Monitor.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "GitLab Monitor.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -88,7 +94,7 @@
 		A50000032DA7000100GLMN01 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				A200000F2DA7000100GLMN01 /* GitLabMonitor.app */,
+				A200000F2DA7000100GLMN01 /* GitLab Monitor.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -97,6 +103,7 @@
 			isa = PBXGroup;
 			children = (
 				A20000042DA7000100GLMN01 /* AppSettings.swift */,
+				A20000152DA7000100GLMN01 /* MenuShortcut.swift */,
 				A20000052DA7000100GLMN01 /* MergeRequestModels.swift */,
 				A20000112DA7000100GLMN01 /* Debug.swift */,
 			);
@@ -108,6 +115,7 @@
 			children = (
 				A20000062DA7000100GLMN01 /* KeychainStore.swift */,
 				A20000072DA7000100GLMN01 /* GitLabAPIClient.swift */,
+				A20000162DA7000100GLMN01 /* MenuShortcutMonitor.swift */,
 				A20000082DA7000100GLMN01 /* RefreshCoordinator.swift */,
 			);
 			path = Services;
@@ -121,6 +129,7 @@
 				A20000132DA7000100GLMN01 /* HoverTooltip.swift */,
 				A20000142DA7000100GLMN01 /* GitLabStatusIcon.swift */,
 				A200000B2DA7000100GLMN01 /* SettingsView.swift */,
+				A20000172DA7000100GLMN01 /* ShortcutRecorder.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -146,9 +155,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		A60000012DA7000100GLMN01 /* GitLabMonitor */ = {
+		A60000012DA7000100GLMN01 /* GitLab Monitor */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = A70000032DA7000100GLMN01 /* Build configuration list for PBXNativeTarget "GitLabMonitor" */;
+			buildConfigurationList = A70000032DA7000100GLMN01 /* Build configuration list for PBXNativeTarget "GitLab Monitor" */;
 			buildPhases = (
 				A60000022DA7000100GLMN01 /* Sources */,
 				A40000012DA7000100GLMN01 /* Frameworks */,
@@ -158,13 +167,13 @@
 			);
 			dependencies = (
 			);
-			name = GitLabMonitor;
+			name = "GitLab Monitor";
 			packageProductDependencies = (
 				A30000012DA7000100GLMN01 /* LaunchAtLogin */,
 				A30000022DA7000100GLMN01 /* components-swiftUI */,
 			);
-			productName = GitLabMonitor;
-			productReference = A200000F2DA7000100GLMN01 /* GitLabMonitor.app */;
+			productName = "GitLab Monitor";
+			productReference = A200000F2DA7000100GLMN01 /* GitLab Monitor.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -199,7 +208,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				A60000012DA7000100GLMN01 /* GitLabMonitor */,
+				A60000012DA7000100GLMN01 /* GitLab Monitor */,
 			);
 		};
 /* End PBXProject section */
@@ -235,6 +244,9 @@
 				A10000132DA7000100GLMN01 /* HoverTooltip.swift in Sources */,
 				A10000142DA7000100GLMN01 /* GitLabStatusIcon.swift in Sources */,
 				A100000B2DA7000100GLMN01 /* SettingsView.swift in Sources */,
+				A10000152DA7000100GLMN01 /* MenuShortcut.swift in Sources */,
+				A10000162DA7000100GLMN01 /* MenuShortcutMonitor.swift in Sources */,
+				A10000172DA7000100GLMN01 /* ShortcutRecorder.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -400,6 +412,7 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = "GitLab Monitor";
+				INFOPLIST_KEY_CFBundleName = "GitLab Monitor";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.developer-tools";
 				INFOPLIST_KEY_LSUIElement = YES;
 				INFOPLIST_KEY_NSMainStoryboardFile = Main;
@@ -429,7 +442,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		A70000032DA7000100GLMN01 /* Build configuration list for PBXNativeTarget "GitLabMonitor" */ = {
+		A70000032DA7000100GLMN01 /* Build configuration list for PBXNativeTarget "GitLab Monitor" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				A70000132DA7000100GLMN01 /* Debug */,
