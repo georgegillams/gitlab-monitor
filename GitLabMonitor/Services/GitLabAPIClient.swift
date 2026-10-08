@@ -127,7 +127,6 @@ actor GitLabAPIClient {
         let name: String
         let stage: String
         let status: String
-        let allow_failure: Bool?
         let web_url: String?
     }
 
@@ -219,15 +218,14 @@ actor GitLabAPIClient {
             pipelineID: pipeline.id,
             token: token
         )
-        let built = stages(from: jobs, baseURL: baseURL)
-        let names = await stageNamesInPipelineOrder(
+        let reported = await reportedStages(
             baseURL: baseURL,
             fullPath: mr.projectPath,
             projectID: mr.project_id,
             pipelineID: pipeline.id,
             token: token
         )
-        return ordered(built, byStageNames: names)
+        return stages(from: jobs, reported: reported, baseURL: baseURL)
     }
 
     /// The merge request list often omits `head_pipeline`. Approvals still load
@@ -294,65 +292,73 @@ actor GitLabAPIClient {
         return collected
     }
 
-    private func stages(from jobs: [APIJob], baseURL: String) -> [PipelineStage] {
+    /// A stage GitLab has already summarized. Job ids are only a fallback order.
+    private struct ReportedStage {
+        let name: String
+        let status: PipelineStageStatus
+    }
+
+    private func stages(from jobs: [APIJob], reported: [ReportedStage], baseURL: String) -> [PipelineStage] {
         var earliestJobID: [String: Int] = [:]
         var jobsByStage: [String: [PipelineJob]] = [:]
-        var statusesByStage: [String: [PipelineStageStatus]] = [:]
 
         // Retried attempts are omitted. The remaining jobs are the latest of each name.
-        // This order is only a fallback. GitLab's graph uses stage position, applied later.
-        let ordered = jobs.sorted { $0.id < $1.id }
-        for job in ordered {
+        let orderedJobs = jobs.sorted { $0.id < $1.id }
+        for job in orderedJobs {
             if earliestJobID[job.stage] == nil {
                 earliestJobID[job.stage] = job.id
             }
-            let status = PipelineStageStatus.fromGitLabJobStatus(job.status)
             jobsByStage[job.stage, default: []].append(
                 PipelineJob(
                     id: job.id,
                     name: job.name,
-                    status: status,
+                    status: PipelineStageStatus.fromGitLabStatus(job.status),
                     webURL: sameHostURL(job.web_url, baseURL: baseURL)
                 )
             )
-            // An allowed failure still shows as failed on the job, but it does not fail the stage.
-            let stageStatus = (job.allow_failure == true && status == .failed) ? PipelineStageStatus.success : status
-            statusesByStage[job.stage, default: []].append(stageStatus)
         }
 
-        let stageOrder = earliestJobID.keys.sorted {
+        var statusByName: [String: PipelineStageStatus] = [:]
+        var names: [String] = []
+        for stage in reported where statusByName[stage.name] == nil && jobsByStage[stage.name] != nil {
+            statusByName[stage.name] = stage.status
+            names.append(stage.name)
+        }
+        let missing = earliestJobID.keys.filter { statusByName[$0] == nil }.sorted {
             (earliestJobID[$0] ?? 0) < (earliestJobID[$1] ?? 0)
         }
-        return stageOrder.map { name in
+        names.append(contentsOf: missing)
+
+        return names.map { name in
             PipelineStage(
                 name: name,
-                status: PipelineStageStatus.aggregate(statusesByStage[name] ?? []),
+                status: statusByName[name] ?? .unknown,
                 jobs: jobsByStage[name] ?? []
             )
         }
     }
 
-    /// GitLab draws stages left to right by `ci_stages.position`. Job ids do not follow that:
-    /// a retry in an early stage gets a newer id than jobs in later stages.
-    private static let stageOrderQuery = """
+    /// GitLab draws stages left to right by `ci_stages.position` and stores each stage's status.
+    private static let stageStatusQuery = """
     query($fullPath: ID!, $id: CiPipelineID!) {
       project(fullPath: $fullPath) {
         pipeline(id: $id) {
           stages(first: 100) {
-            nodes { name }
+            nodes { name status }
           }
         }
       }
     }
     """
 
-    private struct StageOrderResponse: Decodable {
+    private struct StageStatusResponse: Decodable {
         struct Envelope: Decodable {
             struct Project: Decodable {
                 struct Pipeline: Decodable {
                     struct Stages: Decodable {
                         struct Node: Decodable {
                             let name: String?
+                            let status: String?
                         }
 
                         let nodes: [Node]?
@@ -370,20 +376,20 @@ actor GitLabAPIClient {
         let data: Envelope?
     }
 
-    private func stageNamesInPipelineOrder(
+    private func reportedStages(
         baseURL: String,
         fullPath: String,
         projectID: Int,
         pipelineID: Int,
         token: String
-    ) async -> [String] {
+    ) async -> [ReportedStage] {
         // `project/<id>` is the stand-in used when the MR list has no path.
         guard fullPath != "project/\(projectID)" else { return [] }
         guard let url = URL(string: baseURL + "/api/graphql") else { return [] }
         let body: Data
         do {
             body = try JSONSerialization.data(withJSONObject: [
-                "query": Self.stageOrderQuery,
+                "query": Self.stageStatusQuery,
                 "variables": [
                     "fullPath": fullPath,
                     "id": "gid://gitlab/Ci::Pipeline/\(pipelineID)"
@@ -394,32 +400,21 @@ actor GitLabAPIClient {
         }
 
         do {
-            let response: StageOrderResponse = try await fetch(
+            let response: StageStatusResponse = try await fetch(
                 url,
                 baseURL: baseURL,
                 token: token,
                 method: "POST",
                 body: body
             ).value
-            let names = response.data?.project?.pipeline?.stages?.nodes?.compactMap(\.name) ?? []
-            return names.filter { !$0.isEmpty }
+            let nodes = response.data?.project?.pipeline?.stages?.nodes ?? []
+            return nodes.compactMap { node in
+                guard let name = node.name, !name.isEmpty else { return nil }
+                return ReportedStage(name: name, status: PipelineStageStatus.fromGitLabStatus(node.status))
+            }
         } catch {
             return []
         }
-    }
-
-    private func ordered(_ stages: [PipelineStage], byStageNames names: [String]) -> [PipelineStage] {
-        guard !names.isEmpty else { return stages }
-        var rank: [String: Int] = [:]
-        for (index, name) in names.enumerated() where rank[name] == nil {
-            rank[name] = index
-        }
-        return stages.enumerated().sorted { lhs, rhs in
-            let left = rank[lhs.element.name] ?? Int.max
-            let right = rank[rhs.element.name] ?? Int.max
-            if left == right { return lhs.offset < rhs.offset }
-            return left < right
-        }.map(\.element)
     }
 
     private func fetchApprovals(
