@@ -16,10 +16,8 @@ extension Bundle {
             ?? menuProductName
     }
 
-    /// Same Typeform Chorder uses (`app-feedback`), tagged so responses are attributable to this app.
     var feedbackURL: URL {
-        var components = URLComponents(string: "https://georgegillams.typeform.com/app-feedback")!
-        components.queryItems = [URLQueryItem(name: "app_name", value: "GitLab Monitor")]
+        let components = URLComponents(string: "https://www.georgegillams.co.uk/gitlab-monitor-feedback")!
         return components.url!
     }
 

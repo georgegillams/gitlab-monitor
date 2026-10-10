@@ -22,6 +22,11 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
     /// Focus-loss notifications in this window are ignored so showing the panel
     /// doesn't immediately dismiss it.
     var ignoreFocusLossUntil: Date?
+    /// True while a secondary-click menu is being presented, so the status-item
+    /// click handler doesn't also toggle the panel.
+    var isPresentingContextMenu = false
+    /// Set once the secondary-click menu actually opens, so mouse-up doesn't present it again.
+    var contextMenuDidOpen = false
 
     override init() {
         gDebugPrint("AppDelegate.init begin")

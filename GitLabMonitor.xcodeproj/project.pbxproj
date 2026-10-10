@@ -46,7 +46,7 @@
 		A20000122DA7000100GLMN01 /* Main.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Main.storyboard; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		A200000D2DA7000100GLMN01 /* GitLabMonitor.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = GitLabMonitor.entitlements; sourceTree = "<group>"; };
 		A200000E2DA7000100GLMN01 /* GitLabMonitor-Release.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "GitLabMonitor-Release.entitlements"; sourceTree = "<group>"; };
-		A200000F2DA7000100GLMN01 /* GitLabMonitor.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = GitLabMonitor.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		A200000F2DA7000100GLMN01 /* GitLab Monitor.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "GitLab Monitor.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -88,7 +88,7 @@
 		A50000032DA7000100GLMN01 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				A200000F2DA7000100GLMN01 /* GitLabMonitor.app */,
+				A200000F2DA7000100GLMN01 /* GitLab Monitor.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -146,9 +146,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		A60000012DA7000100GLMN01 /* GitLabMonitor */ = {
+		A60000012DA7000100GLMN01 /* GitLab Monitor */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = A70000032DA7000100GLMN01 /* Build configuration list for PBXNativeTarget "GitLabMonitor" */;
+			buildConfigurationList = A70000032DA7000100GLMN01 /* Build configuration list for PBXNativeTarget "GitLab Monitor" */;
 			buildPhases = (
 				A60000022DA7000100GLMN01 /* Sources */,
 				A40000012DA7000100GLMN01 /* Frameworks */,
@@ -158,13 +158,13 @@
 			);
 			dependencies = (
 			);
-			name = GitLabMonitor;
+			name = "GitLab Monitor";
 			packageProductDependencies = (
 				A30000012DA7000100GLMN01 /* LaunchAtLogin */,
 				A30000022DA7000100GLMN01 /* components-swiftUI */,
 			);
-			productName = GitLabMonitor;
-			productReference = A200000F2DA7000100GLMN01 /* GitLabMonitor.app */;
+			productName = "GitLab Monitor";
+			productReference = A200000F2DA7000100GLMN01 /* GitLab Monitor.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -199,7 +199,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				A60000012DA7000100GLMN01 /* GitLabMonitor */,
+				A60000012DA7000100GLMN01 /* GitLab Monitor */,
 			);
 		};
 /* End PBXProject section */
@@ -400,6 +400,7 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = "GitLab Monitor";
+				INFOPLIST_KEY_CFBundleName = "GitLab Monitor";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.developer-tools";
 				INFOPLIST_KEY_LSUIElement = YES;
 				INFOPLIST_KEY_NSMainStoryboardFile = Main;
@@ -429,7 +430,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		A70000032DA7000100GLMN01 /* Build configuration list for PBXNativeTarget "GitLabMonitor" */ = {
+		A70000032DA7000100GLMN01 /* Build configuration list for PBXNativeTarget "GitLab Monitor" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				A70000132DA7000100GLMN01 /* Debug */,

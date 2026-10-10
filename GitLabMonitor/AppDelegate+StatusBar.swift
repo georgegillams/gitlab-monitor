@@ -381,14 +381,18 @@ extension AppDelegate {
         panelDismissObservers.removeAll()
     }
 
-    @objc func openContextMenu() {
-        closeStatusPanel()
+    func openContextMenu() {
+        guard !isPresentingContextMenu else { return }
+        isPresentingContextMenu = true
+        defer { isPresentingContextMenu = false }
 
-        guard let button = statusBarItem.button else { return }
+        closeStatusPanel()
+        guard statusBarItem.button != nil else { return }
 
         let productName = Bundle.main.menuProductName
         let buildLabel = Bundle.main.menuBuildLabel
         let menu = NSMenu()
+        menu.delegate = self
 
         let settingsItem = NSMenuItem(
             title: "Settings…",
@@ -419,11 +423,22 @@ extension AppDelegate {
         quitItem.target = self
         menu.addItem(quitItem)
 
-        // Pop up directly. The old performClick + immediately clearing `statusItem.menu`
-        // races AppKit (and re-enters our mouseDown override), so the menu often never appears.
-        button.highlight(true)
-        menu.popUp(positioning: nil, at: NSPoint(x: 0, y: button.bounds.height), in: button)
-        button.highlight(false)
+        // `NSMenu.popUp(positioning:at:in:)` cancels immediately on a secondary click,
+        // so the menu never appears. `performClick` re-enters our mouseDown override.
+        // This is the status-item presenter, and it still tracks correctly from a right-click.
+        contextMenuDidOpen = false
+        presentStatusItemMenu(menu)
+    }
+
+    private func presentStatusItemMenu(_ menu: NSMenu) {
+        // `popUpMenu` is deprecated in favor of assigning `menu`, which can't be left
+        // assigned here: every click would open this menu, and `performClick` re-enters
+        // our `mouseDown` override. Call the status-item presenter directly.
+        let selector = NSSelectorFromString("popUpStatusItemMenu:")
+        guard let implementation = statusBarItem.method(for: selector) else { return }
+        typealias PresentMenu = @convention(c) (AnyObject, Selector, NSMenu) -> Void
+        let present = unsafeBitCast(implementation, to: PresentMenu.self)
+        present(statusBarItem, selector, menu)
     }
 
     func windowDidBecomeKey(_ notification: Notification) {
@@ -509,6 +524,9 @@ extension NSStatusBarButton {
             super.mouseDown(with: event)
             return
         }
+        if appDelegate.isPresentingContextMenu {
+            return
+        }
         if event.modifierFlags.contains(.control) {
             appDelegate.openContextMenu()
             return
@@ -521,6 +539,25 @@ extension NSStatusBarButton {
             super.rightMouseDown(with: event)
             return
         }
+        // A menu opened while the button is still down can be cancelled before it
+        // appears. Mouse-up presents again if this attempt never opens.
+        appDelegate.contextMenuDidOpen = false
         appDelegate.openContextMenu()
+    }
+
+    open override func rightMouseUp(with event: NSEvent) {
+        guard let appDelegate = target as? AppDelegate else {
+            super.rightMouseUp(with: event)
+            return
+        }
+        defer { appDelegate.contextMenuDidOpen = false }
+        guard !appDelegate.contextMenuDidOpen else { return }
+        appDelegate.openContextMenu()
+    }
+}
+
+extension AppDelegate: NSMenuDelegate {
+    func menuWillOpen(_ menu: NSMenu) {
+        contextMenuDidOpen = true
     }
 }
