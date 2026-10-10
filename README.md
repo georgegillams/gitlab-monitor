@@ -2,6 +2,21 @@
 
 Menu-bar macOS app that shows your authored open merge requests, pipeline stages, and approvals.
 
+## Using the app
+
+### Install
+
+Download on the app store: https://apps.apple.com/gb/app/gitlab-monitor/id6820492677?mt=12
+
+Run, and look for the app in the status bar.
+
+### Direct download
+
+1. Go to https://github.com/georgegillams/gitlab-monitor/releases/
+1. Download and extract the latest zip
+1. Copy the app to `/Applications` and run it
+1. Look for the app in the status bar.
+
 ## Features
 
 - Menu-bar icon with a popover listing your open MRs
@@ -52,4 +67,17 @@ UI colors come from [components-swiftUI](https://github.com/georgegillams/compon
 
 Release archives use `GitLabMonitor-Release.entitlements` (App Sandbox enabled, with network client). No manual entitlements changes are needed before upload.
 
-Note: If releasing for manual distribution, disable app sandboxing.
+### Manual distribution (GitHub Releases)
+
+1. In Xcode, select the **GitLab Monitor** scheme and **Any Mac (Mac Catalyst)** / **My Mac** as appropriate.
+1. Update **Version** / **Build** (see App Store steps above).
+1. Product → **Archive**.
+1. In the Organizer, select the archive → **Distribute App** → **Direct Distribution**
+1. After notarization completes, in the table row, select **Export** to export `GitLab Monitor.app`.
+1. Zip the app for distribution (Finder: right click `GitLab Monitor.app` → **Compress**) and name it like `GitLab-Monitor-<version>.zip`.
+1. Revert XCode build target to **GitLab Monitor** → **My Mac**.
+1. In GitHub: go to the [releases page](https://github.com/georgegillams/gitlab-monitor/releases/) and click **Draft a new release**.
+1. Choose a tag (create one if needed) like `v<version>`, set the release title, and write release notes.
+1. Under **Assets**, upload `GitLab-Monitor-<version>.zip`.
+1. Click **Publish release**.
+

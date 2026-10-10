@@ -294,7 +294,18 @@ private struct InstanceEditor: View {
                 )
             }
 
-            HStack(alignment: .center) {
+            HStack(alignment: .center, spacing: Primitive.Layout.spacingSm) {
+                Button {
+                    guard let url = personalAccessTokensURL else { return }
+                    NSWorkspace.shared.open(url)
+                } label: {
+                    Label("Manage tokens", systemImage: "key")
+                }
+                .disabled(personalAccessTokensURL == nil)
+                .help(personalAccessTokensURL == nil
+                    ? "Enter a GitLab URL to open its token page"
+                    : "Open personal access tokens in your browser")
+
                 InstanceStatusBadge(status: connectionStatus)
                 Spacer(minLength: Primitive.Layout.spacingSm)
                 if canRemove {
@@ -323,6 +334,45 @@ private struct InstanceEditor: View {
             label = instance.label
             baseURL = instance.baseURL
         }
+    }
+
+    /// Personal access tokens page for the URL currently in the field.
+    /// Always https. Nil when the field is empty or not a usable GitLab URL.
+    private var personalAccessTokensURL: URL? {
+        Self.personalAccessTokensURL(from: baseURL)
+    }
+
+    static func personalAccessTokensURL(from rawBaseURL: String) -> URL? {
+        var value = rawBaseURL.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !value.isEmpty else { return nil }
+
+        let lowercased = value.lowercased()
+        if lowercased.hasPrefix("http://") {
+            value.replaceSubrange(
+                value.startIndex..<value.index(value.startIndex, offsetBy: "http://".count),
+                with: "https://"
+            )
+        } else if !lowercased.hasPrefix("https://") {
+            value = "https://\(value)"
+        }
+
+        guard var components = URLComponents(string: value),
+              let host = components.host,
+              !host.isEmpty else {
+            return nil
+        }
+        components.scheme = "https"
+        components.query = nil
+        components.fragment = nil
+        var path = components.percentEncodedPath
+        if path == "/" {
+            path = ""
+        }
+        while path.hasSuffix("/") {
+            path.removeLast()
+        }
+        components.percentEncodedPath = path + "/-/user_settings/personal_access_tokens"
+        return components.url
     }
 
     /// Empty URL or token is not configured.
