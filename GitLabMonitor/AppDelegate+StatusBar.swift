@@ -174,7 +174,13 @@ extension AppDelegate {
             self.positionStatusPanel(panel, under: button)
             self.ignoreFocusLossUntil = Date().addingTimeInterval(0.25)
             self.startEventMonitor()
-            panel.orderFront(nil)
+            // orderFront does nothing while this accessory app is inactive, which is the
+            // usual case when the popover shortcut fires from another app.
+            if NSApp.isActive {
+                panel.orderFront(nil)
+            } else {
+                panel.orderFrontRegardless()
+            }
             button.highlight(true)
             gDebugPrint("statusPanel shown frame=\(NSStringFromRect(panel.frame))")
         }
@@ -451,6 +457,7 @@ extension AppDelegate {
         let settingsUI = SettingsView(
             settings: settings,
             coordinator: refreshCoordinator,
+            menuShortcutMonitor: menuShortcutMonitor,
             onInstancesChanged: { [weak self] in
                 self?.refreshCoordinator.refresh(reason: .manual)
             }

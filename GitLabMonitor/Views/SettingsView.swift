@@ -11,6 +11,7 @@ import components_swiftUI
 struct SettingsView: View {
     @ObservedObject var settings: AppSettings
     @ObservedObject var coordinator: RefreshCoordinator
+    @ObservedObject var menuShortcutMonitor: MenuShortcutMonitor
     var onInstancesChanged: () -> Void = {}
 
     @State private var launchAtLogin = LaunchAtLogin.isEnabled
@@ -117,6 +118,26 @@ struct SettingsView: View {
                 }
                 .onChange(of: launchAtLogin) { value in
                     LaunchAtLogin.isEnabled = value
+                }
+
+                LabeledContent {
+                    ShortcutRecorder(
+                        shortcut: $settings.menuShortcut,
+                        monitor: menuShortcutMonitor
+                    )
+                } label: {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Popover shortcut")
+                        Text("Show or hide the popover from any app. Unset until you choose one.")
+                            .font(.caption)
+                            .foregroundStyle(Semantic.Colors.textDisabled)
+                    }
+                }
+
+                if let registrationError = menuShortcutMonitor.registrationError {
+                    Text(registrationError)
+                        .font(.caption)
+                        .foregroundStyle(Semantic.Colors.statusDestructive)
                 }
 
                 Toggle(isOn: conventionalCommitTitles) {

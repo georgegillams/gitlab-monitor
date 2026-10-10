@@ -9,6 +9,7 @@ import SwiftUI
 @main
 class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
     let settings = AppSettings()
+    let menuShortcutMonitor = MenuShortcutMonitor()
     var refreshCoordinator: RefreshCoordinator!
 
     var windowsOpen = 0
@@ -54,6 +55,11 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         createStatusBarButton()
         gDebugPrint("createStatusBarButton returned visible=\(statusBarItem?.isVisible ?? false)")
 
+        menuShortcutMonitor.onPress = { [weak self] in
+            self?.toggleStatusPanel()
+        }
+        menuShortcutMonitor.start(settings: settings)
+
         gDebugPrint("refreshCoordinator.start…")
         refreshCoordinator.start()
         gDebugPrint("refreshCoordinator.start returned")
@@ -78,6 +84,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
 
     func applicationWillTerminate(_ notification: Notification) {
         gDebugPrint("applicationWillTerminate")
+        menuShortcutMonitor.stop()
         refreshCoordinator?.stop()
         closeStatusPanel()
     }

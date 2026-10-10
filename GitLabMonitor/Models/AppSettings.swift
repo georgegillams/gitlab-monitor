@@ -20,10 +20,22 @@ final class AppSettings: ObservableObject {
             UserDefaults.standard.set(sortOrder.rawValue, forKey: Self.sortOrderKey)
         }
     }
+    /// Nil until the user chooses one. Nothing is registered in that case.
+    @Published var menuShortcut: MenuShortcut? {
+        didSet {
+            guard menuShortcut != oldValue else { return }
+            if let menuShortcut, let data = try? JSONEncoder().encode(menuShortcut) {
+                UserDefaults.standard.set(data, forKey: Self.menuShortcutKey)
+            } else {
+                UserDefaults.standard.removeObject(forKey: Self.menuShortcutKey)
+            }
+        }
+    }
 
     private let defaultsKey = "gitlabMonitor.instances"
     private static let titleParsingKey = "gitlabMonitor.titleParsing"
     private static let sortOrderKey = "gitlabMonitor.sortOrder"
+    private static let menuShortcutKey = "gitlabMonitor.menuShortcut"
     private var keychain = KeychainStore()
 
     init() {
@@ -36,6 +48,15 @@ final class AppSettings: ObservableObject {
         sortOrder = resolvedSort
         if !storedSort.isEmpty, storedSort != resolvedSort.rawValue {
             UserDefaults.standard.set(resolvedSort.rawValue, forKey: Self.sortOrderKey)
+        }
+        if let data = UserDefaults.standard.data(forKey: Self.menuShortcutKey),
+           let decoded = try? JSONDecoder().decode(MenuShortcut.self, from: data) {
+            menuShortcut = decoded
+        } else {
+            menuShortcut = nil
+            if UserDefaults.standard.object(forKey: Self.menuShortcutKey) != nil {
+                UserDefaults.standard.removeObject(forKey: Self.menuShortcutKey)
+            }
         }
         if let data = UserDefaults.standard.data(forKey: defaultsKey),
            let decoded = try? JSONDecoder().decode([GitLabInstanceConfig].self, from: data) {

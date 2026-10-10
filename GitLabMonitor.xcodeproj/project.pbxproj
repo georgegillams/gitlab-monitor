@@ -21,6 +21,9 @@
 		A10000132DA7000100GLMN01 /* HoverTooltip.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000132DA7000100GLMN01 /* HoverTooltip.swift */; };
 		A10000142DA7000100GLMN01 /* GitLabStatusIcon.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000142DA7000100GLMN01 /* GitLabStatusIcon.swift */; };
 		A100000B2DA7000100GLMN01 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A200000B2DA7000100GLMN01 /* SettingsView.swift */; };
+		A10000152DA7000100GLMN01 /* MenuShortcut.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000152DA7000100GLMN01 /* MenuShortcut.swift */; };
+		A10000162DA7000100GLMN01 /* MenuShortcutMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000162DA7000100GLMN01 /* MenuShortcutMonitor.swift */; };
+		A10000172DA7000100GLMN01 /* ShortcutRecorder.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000172DA7000100GLMN01 /* ShortcutRecorder.swift */; };
 		A100000C2DA7000100GLMN01 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A200000C2DA7000100GLMN01 /* Assets.xcassets */; };
 		A10000112DA7000100GLMN01 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = A20000122DA7000100GLMN01 /* Main.storyboard */; };
 		A100000D2DA7000100GLMN01 /* LaunchAtLogin in Frameworks */ = {isa = PBXBuildFile; productRef = A30000012DA7000100GLMN01 /* LaunchAtLogin */; };
@@ -42,6 +45,9 @@
 		A20000132DA7000100GLMN01 /* HoverTooltip.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HoverTooltip.swift; sourceTree = "<group>"; };
 		A20000142DA7000100GLMN01 /* GitLabStatusIcon.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GitLabStatusIcon.swift; sourceTree = "<group>"; };
 		A200000B2DA7000100GLMN01 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		A20000152DA7000100GLMN01 /* MenuShortcut.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuShortcut.swift; sourceTree = "<group>"; };
+		A20000162DA7000100GLMN01 /* MenuShortcutMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuShortcutMonitor.swift; sourceTree = "<group>"; };
+		A20000172DA7000100GLMN01 /* ShortcutRecorder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShortcutRecorder.swift; sourceTree = "<group>"; };
 		A200000C2DA7000100GLMN01 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		A20000122DA7000100GLMN01 /* Main.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Main.storyboard; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		A200000D2DA7000100GLMN01 /* GitLabMonitor.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = GitLabMonitor.entitlements; sourceTree = "<group>"; };
@@ -97,6 +103,7 @@
 			isa = PBXGroup;
 			children = (
 				A20000042DA7000100GLMN01 /* AppSettings.swift */,
+				A20000152DA7000100GLMN01 /* MenuShortcut.swift */,
 				A20000052DA7000100GLMN01 /* MergeRequestModels.swift */,
 				A20000112DA7000100GLMN01 /* Debug.swift */,
 			);
@@ -108,6 +115,7 @@
 			children = (
 				A20000062DA7000100GLMN01 /* KeychainStore.swift */,
 				A20000072DA7000100GLMN01 /* GitLabAPIClient.swift */,
+				A20000162DA7000100GLMN01 /* MenuShortcutMonitor.swift */,
 				A20000082DA7000100GLMN01 /* RefreshCoordinator.swift */,
 			);
 			path = Services;
@@ -121,6 +129,7 @@
 				A20000132DA7000100GLMN01 /* HoverTooltip.swift */,
 				A20000142DA7000100GLMN01 /* GitLabStatusIcon.swift */,
 				A200000B2DA7000100GLMN01 /* SettingsView.swift */,
+				A20000172DA7000100GLMN01 /* ShortcutRecorder.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -235,6 +244,9 @@
 				A10000132DA7000100GLMN01 /* HoverTooltip.swift in Sources */,
 				A10000142DA7000100GLMN01 /* GitLabStatusIcon.swift in Sources */,
 				A100000B2DA7000100GLMN01 /* SettingsView.swift in Sources */,
+				A10000152DA7000100GLMN01 /* MenuShortcut.swift in Sources */,
+				A10000162DA7000100GLMN01 /* MenuShortcutMonitor.swift in Sources */,
+				A10000172DA7000100GLMN01 /* ShortcutRecorder.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
