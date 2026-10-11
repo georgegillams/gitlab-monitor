@@ -18,11 +18,11 @@ struct ShortcutRecorder: View {
         VStack(alignment: .trailing, spacing: 4) {
             HStack(spacing: 6) {
                 ShortcutCaptureButton(
-                    title: isRecording ? "Type shortcut" : (shortcut?.displayString ?? "None"),
+                    title: isRecording ? "Type shortcut now" : (shortcut?.displayString ?? "Record new shortcut"),
                     isRecording: isRecording,
                     help: isRecording
                         ? "Press a shortcut. Escape cancels. Delete clears."
-                        : "Click, then press a shortcut",
+                        : "Click, then type your shortcut",
                     onToggle: toggleRecording,
                     onKey: handleKey,
                     onCancel: cancelRecording

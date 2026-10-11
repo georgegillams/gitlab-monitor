@@ -171,7 +171,8 @@ struct SettingsView: View {
         }
         .formStyle(.grouped)
         .scrollContentBackground(.hidden)
-        .padding(Primitive.Layout.spacingBase)
+        .padding(.horizontal, Primitive.Layout.spacingBase)
+        .padding(.bottom, Primitive.Layout.spacingBase)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
     }
 
@@ -278,7 +279,10 @@ private struct InstanceEditor: View {
             TextField("GitLab URL", text: $baseURL)
                 .textFieldStyle(.roundedBorder)
                 .onSubmit(commitMetadata)
-                .onChange(of: baseURL) { _ in commitMetadata() }
+                .onChange(of: baseURL) { _ in
+                    normalizeBaseURLScheme()
+                    commitMetadata()
+                }
 
             LabeledContent("Bearer token") {
                 SecureTokenField(
@@ -333,11 +337,15 @@ private struct InstanceEditor: View {
         .onAppear {
             label = instance.label
             baseURL = instance.baseURL
+            normalizeBaseURLScheme()
+            if baseURL != instance.baseURL {
+                commitMetadata()
+            }
         }
     }
 
     /// Personal access tokens page for the URL currently in the field.
-    /// Always https. Nil when the field is empty or not a usable GitLab URL.
+    /// Requires https. Nil when the field is empty, still on http, or not a usable GitLab URL.
     private var personalAccessTokensURL: URL? {
         Self.personalAccessTokensURL(from: baseURL)
     }
@@ -348,11 +356,9 @@ private struct InstanceEditor: View {
 
         let lowercased = value.lowercased()
         if lowercased.hasPrefix("http://") {
-            value.replaceSubrange(
-                value.startIndex..<value.index(value.startIndex, offsetBy: "http://".count),
-                with: "https://"
-            )
-        } else if !lowercased.hasPrefix("https://") {
+            return nil
+        }
+        if !lowercased.hasPrefix("https://") {
             value = "https://\(value)"
         }
 
@@ -375,6 +381,25 @@ private struct InstanceEditor: View {
         return components.url
     }
 
+    /// Rewrites `http://` to `https://` in the URL field as the value is edited.
+    private func normalizeBaseURLScheme() {
+        let secured = Self.replacingHTTPSchemeWithHTTPS(baseURL)
+        if secured != baseURL {
+            baseURL = secured
+        }
+    }
+
+    static func replacingHTTPSchemeWithHTTPS(_ rawBaseURL: String) -> String {
+        let lowercased = rawBaseURL.lowercased()
+        guard lowercased.hasPrefix("http://") else { return rawBaseURL }
+        var value = rawBaseURL
+        value.replaceSubrange(
+            value.startIndex..<value.index(value.startIndex, offsetBy: "http://".count),
+            with: "https://"
+        )
+        return value
+    }
+
     /// Empty URL or token is not configured.
     /// Connected only after a fetch for this instance has succeeded.
     /// A failed fetch is inactive. The first attempt stays not configured until that result arrives.
@@ -394,6 +419,7 @@ private struct InstanceEditor: View {
     }
 
     private func commitMetadata() {
+        normalizeBaseURLScheme()
         var updated = instance
         updated.label = label
         updated.baseURL = baseURL

@@ -53,21 +53,20 @@ extension AppDelegate {
     /// Proportions match `GitLabStatusIcon`'s `.inProgress` layout and the `CIStatusRunning` glyph.
     private static let menuBarIcon: NSImage = {
         let side: CGFloat = 18
+        // Draw as opaque black so the composite can be a menu-bar template.
+        let glyph = (NSImage(named: "CIStatusRunning")?.copy() as? NSImage) ?? NSImage()
+        glyph.isTemplate = false
+
         let image = NSImage(size: NSSize(width: side, height: side), flipped: false) { rect in
             let inset: CGFloat = 0.75
             let canvas = min(rect.width, rect.height) - inset * 2
             let origin = NSPoint(x: rect.midX - canvas / 2, y: rect.midY - canvas / 2)
-            let scale = canvas / 22
-
-            func point(_ x: CGFloat, _ y: CGFloat) -> NSPoint {
-                // SVG y-down → AppKit y-up.
-                NSPoint(x: origin.x + x * scale, y: origin.y + (22 - y) * scale)
-            }
+            let canvasRect = NSRect(origin: origin, size: NSSize(width: canvas, height: canvas))
 
             NSColor.black.setFill()
 
             // Same 2/14 ring as the in-progress job icon.
-            let ring = NSBezierPath(ovalIn: NSRect(origin: origin, size: NSSize(width: canvas, height: canvas)))
+            let ring = NSBezierPath(ovalIn: canvasRect)
             let ringInset = canvas * 2 / 14
             ring.appendOval(in: NSRect(
                 x: origin.x + ringInset,
@@ -78,27 +77,7 @@ extension AppDelegate {
             ring.windingRule = .evenOdd
             ring.fill()
 
-            // CIStatusRunning wedge, viewBox 0 0 22 22.
-            let wedge = NSBezierPath()
-            wedge.move(to: point(11, 4.714))
-            wedge.curve(
-                to: point(17.286, 11),
-                controlPoint1: point(14.457, 4.714),
-                controlPoint2: point(17.286, 7.543)
-            )
-            wedge.curve(
-                to: point(11, 17.286),
-                controlPoint1: point(17.286, 14.457),
-                controlPoint2: point(14.457, 17.286)
-            )
-            wedge.curve(
-                to: point(5.814, 14.614),
-                controlPoint1: point(8.957, 17.286),
-                controlPoint2: point(7.071, 16.186)
-            )
-            wedge.line(to: point(11, 11))
-            wedge.close()
-            wedge.fill()
+            glyph.draw(in: canvasRect, from: .zero, operation: .sourceOver, fraction: 1)
 
             return true
         }
