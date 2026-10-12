@@ -152,26 +152,30 @@ final class RefreshCoordinator: ObservableObject {
     }
 
     private func performRefresh() async {
-        #if DEBUG
-        if isGDebugScheme {
-            gDebugPrint("RefreshCoordinator using \(DebugMergeRequestFixtures.mergeRequests.count) mock merge requests")
-            await applyResults(
-                collected: DebugMergeRequestFixtures.mergeRequests,
-                collectedErrors: DebugMergeRequestFixtures.errors,
-                connectedInstanceIDs: Set(DebugMergeRequestFixtures.mergeRequests.map(\.instanceID))
-            )
-            return
-        }
-        #endif
-
-        let (targets, sortOrder) = await MainActor.run {
+        let (targets, sortOrder, showRecentlyMerged) = await MainActor.run {
             (
                 settings.instances.map { instance in
                     (instance, settings.lookupToken(for: instance.id))
                 },
-                settings.sortOrder
+                settings.sortOrder,
+                settings.showRecentlyMerged
             )
         }
+
+        #if DEBUG
+        if isGDebugScheme {
+            let fixtures = DebugMergeRequestFixtures.mergeRequests.filter {
+                showRecentlyMerged || !$0.isMerged
+            }
+            gDebugPrint("RefreshCoordinator using \(fixtures.count) mock merge requests")
+            await applyResults(
+                collected: fixtures,
+                collectedErrors: DebugMergeRequestFixtures.errors,
+                connectedInstanceIDs: Set(fixtures.map(\.instanceID))
+            )
+            return
+        }
+        #endif
 
         // While the Mac is locked the token stays sealed. Keep the last result
         // instead of treating that as a missing credential.
@@ -215,10 +219,11 @@ final class RefreshCoordinator: ObservableObject {
                         token = stored
                     }
                     do {
-                        let mrs = try await client.fetchAuthoredOpenMergeRequests(
+                        let mrs = try await client.fetchAuthoredMergeRequests(
                             instance: instance,
                             token: token,
-                            sortOrder: sortOrder
+                            sortOrder: sortOrder,
+                            includeRecentlyMerged: showRecentlyMerged
                         )
                         return .success((instance.id, mrs))
                     } catch {

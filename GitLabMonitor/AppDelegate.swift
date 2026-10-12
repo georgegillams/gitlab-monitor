@@ -4,6 +4,7 @@
 //
 
 import AppKit
+import Combine
 import SwiftUI
 
 @main
@@ -15,6 +16,9 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
     var windowsOpen = 0
     var statusBarItem: NSStatusItem!
     var statusPanel: NSPanel?
+    /// Kept so we can remeasure after SwiftUI content changes while the panel is open.
+    var statusPanelHosting: NSHostingController<PopoverView>?
+    var statusPanelSizeCancellable: AnyCancellable?
     var settingsWindow: NSWindow?
     var eventMonitor: Any?
     var localEventMonitor: Any?

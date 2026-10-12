@@ -20,6 +20,20 @@ final class AppSettings: ObservableObject {
             UserDefaults.standard.set(sortOrder.rawValue, forKey: Self.sortOrderKey)
         }
     }
+    /// When false, discussion thread badges are omitted from merge request rows.
+    @Published var showThreadBadges: Bool {
+        didSet {
+            guard showThreadBadges != oldValue else { return }
+            UserDefaults.standard.set(showThreadBadges, forKey: Self.showThreadBadgesKey)
+        }
+    }
+    /// When false, merge requests merged in the last 12 hours are omitted.
+    @Published var showRecentlyMerged: Bool {
+        didSet {
+            guard showRecentlyMerged != oldValue else { return }
+            UserDefaults.standard.set(showRecentlyMerged, forKey: Self.showRecentlyMergedKey)
+        }
+    }
     /// Nil until the user chooses one. Nothing is registered in that case.
     @Published var menuShortcut: MenuShortcut? {
         didSet {
@@ -35,6 +49,8 @@ final class AppSettings: ObservableObject {
     private let defaultsKey = "gitlabMonitor.instances"
     private static let titleParsingKey = "gitlabMonitor.titleParsing"
     private static let sortOrderKey = "gitlabMonitor.sortOrder"
+    private static let showThreadBadgesKey = "gitlabMonitor.showThreadBadges"
+    private static let showRecentlyMergedKey = "gitlabMonitor.showRecentlyMerged"
     private static let menuShortcutKey = "gitlabMonitor.menuShortcut"
     private var keychain = KeychainStore()
 
@@ -49,6 +65,10 @@ final class AppSettings: ObservableObject {
         if !storedSort.isEmpty, storedSort != resolvedSort.rawValue {
             UserDefaults.standard.set(resolvedSort.rawValue, forKey: Self.sortOrderKey)
         }
+        showThreadBadges = UserDefaults.standard.object(forKey: Self.showThreadBadgesKey) as? Bool ?? true
+        showRecentlyMerged = UserDefaults.standard.object(forKey: Self.showRecentlyMergedKey) as? Bool ?? true
+        // Drop the old train-animation preference; the merge mark replaced it.
+        UserDefaults.standard.removeObject(forKey: "gitlabMonitor.showMergeTrainAnimation")
         if let data = UserDefaults.standard.data(forKey: Self.menuShortcutKey),
            let decoded = try? JSONDecoder().decode(MenuShortcut.self, from: data) {
             menuShortcut = decoded

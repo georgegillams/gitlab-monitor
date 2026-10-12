@@ -60,7 +60,8 @@ enum DebugMergeRequestFixtures {
                 approvalsRequired: nil,
                 approvalsLeft: nil,
                 userHasApproved: false
-            )
+            ),
+            threads: ThreadSummary(resolvable: 2, resolved: 1)
         ),
         item(
             instanceID: acmeID,
@@ -82,7 +83,8 @@ enum DebugMergeRequestFixtures {
                 approvalsRequired: 1,
                 approvalsLeft: 1,
                 userHasApproved: false
-            )
+            ),
+            threads: .empty
         ),
         item(
             instanceID: gitlabComID,
@@ -104,7 +106,30 @@ enum DebugMergeRequestFixtures {
                 approvalsRequired: 2,
                 approvalsLeft: 0,
                 userHasApproved: false
-            )
+            ),
+            threads: ThreadSummary(resolvable: 3, resolved: 3),
+            mergeIndicator: .mergeTrain
+        ),
+        item(
+            instanceID: gitlabComID,
+            instanceLabel: "GitLab.com",
+            projectID: 1842,
+            iid: 1830,
+            title: "feat(api): ship webhook retries for settlement events",
+            projectPath: "acme/payments-api",
+            createdAt: date(daysAgo: 3),
+            updatedAt: date(hoursAgo: 2),
+            webURL: "https://gitlab.com/acme/payments-api/-/merge_requests/1830",
+            stages: [],
+            approvals: ApprovalSummary(
+                approvedBy: [],
+                approvalsRequired: nil,
+                approvalsLeft: nil,
+                userHasApproved: false
+            ),
+            threads: .empty,
+            mergeIndicator: .merged,
+            mergedAt: date(hoursAgo: 2)
         ),
         item(
             instanceID: gitlabComID,
@@ -131,7 +156,8 @@ enum DebugMergeRequestFixtures {
                 approvalsRequired: 2,
                 approvalsLeft: 1,
                 userHasApproved: false
-            )
+            ),
+            threads: ThreadSummary(resolvable: 4, resolved: 0)
         ),
         item(
             instanceID: gitlabComID,
@@ -152,7 +178,8 @@ enum DebugMergeRequestFixtures {
                 approvalsRequired: 1,
                 approvalsLeft: 0,
                 userHasApproved: false
-            )
+            ),
+            threads: ThreadSummary(resolvable: 1, resolved: 0)
         ),
         item(
             instanceID: gitlabComID,
@@ -173,7 +200,8 @@ enum DebugMergeRequestFixtures {
                 approvalsRequired: nil,
                 approvalsLeft: nil,
                 userHasApproved: false
-            )
+            ),
+            threads: .empty
         )
     ]
 
@@ -265,7 +293,10 @@ enum DebugMergeRequestFixtures {
         updatedAt: Date,
         webURL: String,
         stages: [PipelineStage],
-        approvals: ApprovalSummary
+        approvals: ApprovalSummary,
+        threads: ThreadSummary,
+        mergeIndicator: MergeIndicator = .none,
+        mergedAt: Date? = nil
     ) -> MergeRequestItem {
         MergeRequestItem(
             id: "\(instanceID.uuidString)-\(projectID)-\(iid)",
@@ -278,6 +309,9 @@ enum DebugMergeRequestFixtures {
             webURL: URL(string: webURL),
             stages: stages,
             approvals: approvals,
+            threads: threads,
+            mergeIndicator: mergeIndicator,
+            mergedAt: mergedAt,
             createdAt: createdAt,
             updatedAt: updatedAt
         )

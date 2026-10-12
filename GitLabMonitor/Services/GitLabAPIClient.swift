@@ -44,26 +44,44 @@ actor GitLabAPIClient {
         )
     }
 
-    func fetchAuthoredOpenMergeRequests(
+    /// Authored open MRs, and optionally authored MRs merged in the last 12 hours.
+    func fetchAuthoredMergeRequests(
         instance: GitLabInstanceConfig,
         token: String,
-        sortOrder: MergeRequestSortOrder
+        sortOrder: MergeRequestSortOrder,
+        includeRecentlyMerged: Bool
     ) async throws -> [MergeRequestItem] {
-        let mrs = try await listMergeRequests(
+        async let openMRs = listMergeRequests(
             baseURL: instance.normalizedBaseURL,
             token: token,
+            state: "opened",
             sortOrder: sortOrder
         )
+        let open = try await openMRs
+        let merged: [APIMergeRequest]
+        if includeRecentlyMerged {
+            merged = try await listRecentlyMergedMergeRequests(
+                baseURL: instance.normalizedBaseURL,
+                token: token
+            )
+        } else {
+            merged = []
+        }
         var results: [MergeRequestItem] = []
 
         try await withThrowingTaskGroup(of: MergeRequestItem?.self) { group in
-            for mr in mrs {
+            for mr in open {
                 group.addTask {
-                    try await self.enrich(
+                    try await self.enrichOpen(
                         mr: mr,
                         instance: instance,
                         token: token
                     )
+                }
+            }
+            for mr in merged {
+                group.addTask {
+                    await Optional(self.makeMergedItem(mr: mr, instance: instance))
                 }
             }
             for try await item in group {
@@ -83,6 +101,8 @@ actor GitLabAPIClient {
 
     // MARK: - Private
 
+    private static let recentlyMergedWindow: TimeInterval = 12 * 60 * 60
+
     private struct APIMergeRequest: Decodable {
         let id: Int
         let iid: Int
@@ -90,6 +110,7 @@ actor GitLabAPIClient {
         let web_url: String?
         let created_at: String?
         let updated_at: String?
+        let merged_at: String?
         let project_id: Int
         let references: References?
         let head_pipeline: PipelineRef?
@@ -149,6 +170,7 @@ actor GitLabAPIClient {
     private func listMergeRequests(
         baseURL: String,
         token: String,
+        state: String,
         sortOrder: MergeRequestSortOrder
     ) async throws -> [APIMergeRequest] {
         guard var components = URLComponents(string: "\(baseURL)/api/v4/merge_requests") else {
@@ -157,7 +179,7 @@ actor GitLabAPIClient {
         // The page is capped at 50, so the query field and direction have to match the setting.
         components.queryItems = [
             URLQueryItem(name: "scope", value: "created_by_me"),
-            URLQueryItem(name: "state", value: "opened"),
+            URLQueryItem(name: "state", value: state),
             URLQueryItem(name: "per_page", value: "50"),
             URLQueryItem(name: "order_by", value: sortOrder.gitLabOrderBy),
             URLQueryItem(name: "sort", value: sortOrder.gitLabSort)
@@ -166,7 +188,29 @@ actor GitLabAPIClient {
         return try await get(url, baseURL: baseURL, token: token)
     }
 
-    private func enrich(
+    private func listRecentlyMergedMergeRequests(
+        baseURL: String,
+        token: String
+    ) async throws -> [APIMergeRequest] {
+        let cutoff = Date().addingTimeInterval(-Self.recentlyMergedWindow)
+        guard var components = URLComponents(string: "\(baseURL)/api/v4/merge_requests") else {
+            throw GitLabAPIError.invalidURL
+        }
+        components.queryItems = [
+            URLQueryItem(name: "scope", value: "created_by_me"),
+            URLQueryItem(name: "state", value: "merged"),
+            URLQueryItem(name: "per_page", value: "50"),
+            URLQueryItem(name: "order_by", value: "merged_at"),
+            URLQueryItem(name: "sort", value: "desc"),
+            URLQueryItem(name: "merged_after", value: Self.formatGitLabDate(cutoff))
+        ]
+        guard let url = components.url else { throw GitLabAPIError.invalidURL }
+        let mrs: [APIMergeRequest] = try await get(url, baseURL: baseURL, token: token)
+        // Keep a client-side floor in case an older GitLab ignores `merged_after`.
+        return mrs.filter { Self.parseGitLabDate($0.merged_at) >= cutoff }
+    }
+
+    private func enrichOpen(
         mr: APIMergeRequest,
         instance: GitLabInstanceConfig,
         token: String
@@ -177,6 +221,19 @@ actor GitLabAPIClient {
             token: token
         )
         async let approvals = fetchApprovals(
+            baseURL: instance.normalizedBaseURL,
+            projectID: mr.project_id,
+            iid: mr.iid,
+            token: token
+        )
+        async let threads = fetchThreads(
+            baseURL: instance.normalizedBaseURL,
+            mergeRequestID: mr.id,
+            projectID: mr.project_id,
+            iid: mr.iid,
+            token: token
+        )
+        async let isInMergeTrain = fetchIsInMergeTrain(
             baseURL: instance.normalizedBaseURL,
             projectID: mr.project_id,
             iid: mr.iid,
@@ -194,6 +251,39 @@ actor GitLabAPIClient {
             webURL: sameHostURL(mr.web_url, baseURL: instance.normalizedBaseURL),
             stages: try await stages,
             approvals: try await approvals,
+            threads: await threads,
+            mergeIndicator: await isInMergeTrain ? .mergeTrain : .none,
+            mergedAt: nil,
+            createdAt: Self.parseGitLabDate(mr.created_at),
+            updatedAt: Self.parseGitLabDate(mr.updated_at)
+        )
+    }
+
+    /// Recently merged rows only need identity and the solid merge mark.
+    private func makeMergedItem(
+        mr: APIMergeRequest,
+        instance: GitLabInstanceConfig
+    ) -> MergeRequestItem {
+        let mergedAt = Self.parseGitLabDate(mr.merged_at)
+        return MergeRequestItem(
+            id: "\(instance.id.uuidString)-\(mr.id)",
+            instanceID: instance.id,
+            instanceLabel: instance.displayLabel,
+            projectID: mr.project_id,
+            iid: mr.iid,
+            title: mr.title,
+            projectPath: mr.projectPath,
+            webURL: sameHostURL(mr.web_url, baseURL: instance.normalizedBaseURL),
+            stages: [],
+            approvals: ApprovalSummary(
+                approvedBy: [],
+                approvalsRequired: nil,
+                approvalsLeft: nil,
+                userHasApproved: false
+            ),
+            threads: .empty,
+            mergeIndicator: .merged,
+            mergedAt: mergedAt == .distantPast ? nil : mergedAt,
             createdAt: Self.parseGitLabDate(mr.created_at),
             updatedAt: Self.parseGitLabDate(mr.updated_at)
         )
@@ -417,6 +507,40 @@ actor GitLabAPIClient {
         }
     }
 
+    private struct APIMergeTrainCar: Decodable {
+        let status: String?
+    }
+
+    /// Active and still-merging cars count as "on the train". Completed cars do not.
+    private static let activeMergeTrainStatuses: Set<String> = [
+        "idle", "fresh", "stale", "merging"
+    ]
+
+    /// Soft-fails when merge trains are unavailable (CE/Free, missing feature, or 404).
+    private func fetchIsInMergeTrain(
+        baseURL: String,
+        projectID: Int,
+        iid: Int,
+        token: String
+    ) async -> Bool {
+        let url: URL
+        do {
+            url = try apiURL(
+                baseURL,
+                path: "/api/v4/projects/\(projectID)/merge_trains/merge_requests/\(iid)"
+            )
+        } catch {
+            return false
+        }
+        do {
+            let car: APIMergeTrainCar = try await get(url, baseURL: baseURL, token: token)
+            let status = (car.status ?? "").lowercased()
+            return Self.activeMergeTrainStatuses.contains(status)
+        } catch {
+            return false
+        }
+    }
+
     private func fetchApprovals(
         baseURL: String,
         projectID: Int,
@@ -449,6 +573,156 @@ actor GitLabAPIClient {
         }
     }
 
+    private static let threadCountsQuery = """
+    query($id: MergeRequestID!) {
+      mergeRequest(id: $id) {
+        resolvableDiscussionsCount
+        resolvedDiscussionsCount
+      }
+    }
+    """
+
+    private struct ThreadCountsResponse: Decodable {
+        struct Envelope: Decodable {
+            struct MergeRequest: Decodable {
+                let resolvableDiscussionsCount: Int?
+                let resolvedDiscussionsCount: Int?
+            }
+
+            let mergeRequest: MergeRequest?
+        }
+
+        let data: Envelope?
+        let errors: [GraphQLError]?
+    }
+
+    private struct GraphQLError: Decodable {
+        let message: String?
+    }
+
+    /// Discussion-level resolution flags from the REST discussions API.
+    /// Prefer these over note fields: replies are not resolvable, and the root note
+    /// is not always first in the payload the client receives.
+    private struct APIDiscussion: Decodable {
+        let resolvable: Bool?
+        let resolved: Bool?
+    }
+
+    /// Prefer GraphQL counts by global MR id; fall back to paging discussions.
+    private func fetchThreads(
+        baseURL: String,
+        mergeRequestID: Int,
+        projectID: Int,
+        iid: Int,
+        token: String
+    ) async -> ThreadSummary {
+        if let fromGraphQL = await threadCountsFromGraphQL(
+            baseURL: baseURL,
+            mergeRequestID: mergeRequestID,
+            token: token
+        ) {
+            return fromGraphQL
+        }
+        return await threadCountsFromDiscussions(
+            baseURL: baseURL,
+            projectID: projectID,
+            iid: iid,
+            token: token
+        )
+    }
+
+    private func threadCountsFromGraphQL(
+        baseURL: String,
+        mergeRequestID: Int,
+        token: String
+    ) async -> ThreadSummary? {
+        guard let url = URL(string: baseURL + "/api/graphql") else { return nil }
+        let body: Data
+        do {
+            body = try JSONSerialization.data(withJSONObject: [
+                "query": Self.threadCountsQuery,
+                "variables": [
+                    "id": "gid://gitlab/MergeRequest/\(mergeRequestID)"
+                ]
+            ])
+        } catch {
+            return nil
+        }
+
+        do {
+            let response: ThreadCountsResponse = try await fetch(
+                url,
+                baseURL: baseURL,
+                token: token,
+                method: "POST",
+                body: body
+            ).value
+            // Field-missing or auth errors still return HTTP 200 with an `errors` array.
+            if let errors = response.errors, !errors.isEmpty {
+                gDebugPrint(
+                    "threadCounts GraphQL errors for MR \(mergeRequestID):",
+                    errors.compactMap(\.message).joined(separator: "; ")
+                )
+                return nil
+            }
+            guard let mr = response.data?.mergeRequest,
+                  let resolvable = mr.resolvableDiscussionsCount,
+                  let resolved = mr.resolvedDiscussionsCount else {
+                return nil
+            }
+            return ThreadSummary(
+                resolvable: max(0, resolvable),
+                resolved: min(max(0, resolved), max(0, resolvable))
+            )
+        } catch {
+            gDebugPrint("threadCounts GraphQL failed for MR \(mergeRequestID):", error.localizedDescription)
+            return nil
+        }
+    }
+
+    private func threadCountsFromDiscussions(
+        baseURL: String,
+        projectID: Int,
+        iid: Int,
+        token: String
+    ) async -> ThreadSummary {
+        var page = 1
+        var resolvable = 0
+        var resolved = 0
+        for _ in 0..<15 {
+            guard var components = URLComponents(
+                string: "\(baseURL)/api/v4/projects/\(projectID)/merge_requests/\(iid)/discussions"
+            ) else {
+                return .empty
+            }
+            components.queryItems = [
+                URLQueryItem(name: "per_page", value: "100"),
+                URLQueryItem(name: "page", value: String(page))
+            ]
+            guard let url = components.url else { return .empty }
+            let pageResult: (value: [APIDiscussion], nextPage: Int?)
+            do {
+                pageResult = try await fetch(url, baseURL: baseURL, token: token)
+            } catch {
+                gDebugPrint(
+                    "threadCounts discussions failed for \(projectID)!\(iid):",
+                    error.localizedDescription
+                )
+                return .empty
+            }
+            for discussion in pageResult.value {
+                guard discussion.resolvable == true else { continue }
+                resolvable += 1
+                if discussion.resolved == true {
+                    resolved += 1
+                }
+            }
+            guard let nextPage = pageResult.nextPage, nextPage > page else { break }
+            page = nextPage
+        }
+        return ThreadSummary(resolvable: resolvable, resolved: resolved)
+    }
+
     private static let gitLabDateFormatters: [ISO8601DateFormatter] = {
         let fractional = ISO8601DateFormatter()
         fractional.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
@@ -466,6 +740,10 @@ actor GitLabAPIClient {
             }
         }
         return .distantPast
+    }
+
+    private static func formatGitLabDate(_ date: Date) -> String {
+        gitLabDateFormatters[1].string(from: date)
     }
 
     private func apiURL(_ baseURL: String, path: String) throws -> URL {
