@@ -4,6 +4,7 @@
 //
 
 import AppKit
+import Combine
 import SwiftUI
 
 extension AppDelegate {
@@ -135,22 +136,17 @@ extension AppDelegate {
         panel.contentViewController = hosting
 
         statusPanel = panel
+        statusPanelHosting = hosting
+        observeStatusPanelContentSize()
 
         // Size after SwiftUI lays out, then pin under the menu-bar item.
         DispatchQueue.main.async { [weak self] in
             guard let self, self.statusPanel === panel else { return }
-            guard let button = self.statusBarItem.button else {
+            guard self.statusBarItem.button != nil else {
                 self.closeStatusPanel()
                 return
             }
-            hosting.view.layoutSubtreeIfNeeded()
-            var fitting = hosting.view.fittingSize
-            if fitting.width < 1 { fitting.width = Self.statusPanelWidth }
-            if fitting.height < 1 { fitting.height = 200 }
-            fitting.width = Self.statusPanelWidth
-            fitting.height = min(max(fitting.height, 200), Self.statusPanelMaxHeight)
-            panel.setContentSize(fitting)
-            self.positionStatusPanel(panel, under: button)
+            self.updateStatusPanelSize()
             self.ignoreFocusLossUntil = Date().addingTimeInterval(0.25)
             self.startEventMonitor()
             // orderFront does nothing while this accessory app is inactive, which is the
@@ -160,9 +156,51 @@ extension AppDelegate {
             } else {
                 panel.orderFrontRegardless()
             }
-            button.highlight(true)
+            self.statusBarItem.button?.highlight(true)
             gDebugPrint("statusPanel shown frame=\(NSStringFromRect(panel.frame))")
         }
+    }
+
+    /// Remeasure when MR list / loading / errors change so height tracks content while open.
+    private func observeStatusPanelContentSize() {
+        statusPanelSizeCancellable?.cancel()
+        statusPanelSizeCancellable = Publishers.CombineLatest3(
+            refreshCoordinator.$mergeRequests,
+            refreshCoordinator.$isRefreshing,
+            refreshCoordinator.$errors
+        )
+        .dropFirst()
+        .receive(on: DispatchQueue.main)
+        .sink { [weak self] _, _, _ in
+            // Wait for SwiftUI to commit the new tree before measuring.
+            DispatchQueue.main.async {
+                self?.updateStatusPanelSize()
+            }
+        }
+    }
+
+    /// Fits the panel to current SwiftUI content, clamped to min 200 / max `statusPanelMaxHeight`.
+    private func updateStatusPanelSize() {
+        guard let panel = statusPanel,
+              let hosting = statusPanelHosting,
+              let button = statusBarItem.button else { return }
+
+        // Unconstrained height so a short panel (e.g. loading) can grow once rows appear.
+        let fittingSize = hosting.sizeThatFits(
+            in: NSSize(width: Self.statusPanelWidth, height: .greatestFiniteMagnitude)
+        )
+        var fitting = fittingSize
+        if fitting.width < 1 { fitting.width = Self.statusPanelWidth }
+        if fitting.height < 1 { fitting.height = 200 }
+        fitting.width = Self.statusPanelWidth
+        fitting.height = min(max(fitting.height, 200), Self.statusPanelMaxHeight)
+
+        guard abs(panel.frame.width - fitting.width) > 0.5
+            || abs(panel.frame.height - fitting.height) > 0.5 else { return }
+
+        panel.setContentSize(fitting)
+        positionStatusPanel(panel, under: button)
+        gDebugPrint("statusPanel resized frame=\(NSStringFromRect(panel.frame))")
     }
 
     /// Places the panel directly under the status item, clamping horizontally to the screen.
@@ -201,6 +239,9 @@ extension AppDelegate {
         }
         let panel = statusPanel
         statusPanel = nil
+        statusPanelHosting = nil
+        statusPanelSizeCancellable?.cancel()
+        statusPanelSizeCancellable = nil
         ignoreFocusLossUntil = nil
         stopEventMonitor()
         statusBarItem.button?.highlight(false)

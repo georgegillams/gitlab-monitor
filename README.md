@@ -77,7 +77,7 @@ Release archives use `GitLabMonitor-Release.entitlements` (App Sandbox enabled, 
 1. Zip the app for distribution (Finder: right click `GitLab Monitor.app` → **Compress**) and name it like `GitLab-Monitor-<version>.zip`.
 1. Revert XCode build target to **GitLab Monitor** → **My Mac**.
 1. In GitHub: go to the [releases page](https://github.com/georgegillams/gitlab-monitor/releases/) and click **Draft a new release**.
-1. Choose a tag (create one if needed) like `v<version>`, set the release title, and write release notes.
+1. Choose a tag (create one if needed) like `<version>`, set the release title, and write release notes.
 1. Under **Assets**, upload `GitLab-Monitor-<version>.zip`.
 1. Click **Publish release**.
 

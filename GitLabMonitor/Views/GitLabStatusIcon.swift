@@ -27,6 +27,10 @@ struct GitLabStatusIcon: View {
         case approved
         case partiallyApproved
         case unapproved
+        /// Outline purple merge mark for an MR currently on a merge train.
+        case mergeTrain
+        /// Filled purple merge mark for a recently merged MR.
+        case merged
     }
 
     let kind: Kind
@@ -137,6 +141,23 @@ struct GitLabStatusIcon: View {
                 accent: Palette.grey,
                 ring: .dashed
             )
+        case .mergeTrain:
+            return Style(
+                outer: Palette.purple,
+                inner: .clear,
+                symbol: Palette.purple,
+                accent: Palette.purple,
+                asset: "MergeStatus",
+                ring: .outline
+            )
+        case .merged:
+            return Style(
+                outer: Palette.purpleLight,
+                inner: Palette.purple,
+                symbol: .white,
+                accent: Palette.purple,
+                asset: "MergeStatus"
+            )
         }
     }
 
@@ -232,5 +253,8 @@ struct GitLabStatusIcon: View {
         static let greyMid = Color(red: 138.0 / 255, green: 138.0 / 255, blue: 144.0 / 255)
         static let grey = Color(red: 115.0 / 255, green: 114.0 / 255, blue: 120.0 / 255)
         static let greyDark = Color(red: 78.0 / 255, green: 76.0 / 255, blue: 84.0 / 255)
+        /// GitLab Pajamas `purple.200` / `purple.500`.
+        static let purpleLight = Color(red: 203.0 / 255, green: 187.0 / 255, blue: 242.0 / 255)
+        static let purple = Color(red: 123.0 / 255, green: 88.0 / 255, blue: 207.0 / 255)
     }
 }

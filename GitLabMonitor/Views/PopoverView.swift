@@ -111,7 +111,9 @@ struct PopoverView: View {
                 EmptyStateView(
                     systemImage: "checkmark.circle",
                     title: "You’re all clear",
-                    message: "No open merge requests authored by you on the configured GitLab instances.",
+                    message: settings.showRecentlyMerged
+                        ? "No open or recently merged merge requests authored by you on the configured GitLab instances."
+                        : "No open merge requests authored by you on the configured GitLab instances.",
                     actionTitle: nil,
                     action: nil,
                     iconColor: Semantic.Colors.statusSuccess
@@ -125,6 +127,7 @@ struct PopoverView: View {
                             item: item,
                             showInstanceLabel: showsInstanceLabels,
                             titleParsing: settings.titleParsing,
+                            showThreadBadges: settings.showThreadBadges,
                             onOpen: {
                                 openOnInstance(item.webURL, instanceID: item.instanceID)
                             },

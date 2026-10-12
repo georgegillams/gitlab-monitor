@@ -10,6 +10,7 @@ struct MRRowView: View {
     let item: MergeRequestItem
     let showInstanceLabel: Bool
     var titleParsing: TitleParsing = .conventionalCommits
+    var showThreadBadges: Bool = true
     var onOpen: (() -> Void)? = nil
     var onOpenURL: ((URL) -> Void)? = nil
 
@@ -18,6 +19,15 @@ struct MRRowView: View {
 
     private var parsedTitle: ParsedMergeRequestTitle {
         ParsedMergeRequestTitle.parse(rawTitle: item.title, parsing: titleParsing)
+    }
+
+    private var statusLine: StatusLine {
+        StatusLine(
+            stages: item.isMerged ? [] : item.stages,
+            approvals: item.isMerged ? nil : item.approvals,
+            mergeIndicator: item.mergeIndicator,
+            onOpenURL: onOpenURL
+        )
     }
 
     var body: some View {
@@ -35,8 +45,13 @@ struct MRRowView: View {
 
                     // Reserves the title row's trailing space. The live dots are an overlay
                     // so their buttons are not nested inside this one.
-                    StatusLine(stages: item.stages, approvals: item.approvals, interactive: false)
-                        .hidden()
+                    StatusLine(
+                        stages: item.isMerged ? [] : item.stages,
+                        approvals: item.isMerged ? nil : item.approvals,
+                        mergeIndicator: item.mergeIndicator,
+                        interactive: false
+                    )
+                    .hidden()
                 }
 
                 HStack(spacing: Primitive.Layout.spacingSm) {
@@ -50,6 +65,11 @@ struct MRRowView: View {
                         .layoutPriority(1)
                     if parsedTitle.isDraft {
                         DraftBadge()
+                            .fixedSize()
+                            .layoutPriority(1)
+                    }
+                    if showThreadBadges, item.threads.hasThreads {
+                        ThreadsBadge(threads: item.threads)
                             .fixedSize()
                             .layoutPriority(1)
                     }
@@ -68,7 +88,7 @@ struct MRRowView: View {
         .buttonStyle(CardPressStyle(isPressed: $isPressed))
         .accessibilityHint("Open in browser")
         .overlay(alignment: .topTrailing) {
-            StatusLine(stages: item.stages, approvals: item.approvals, onOpenURL: onOpenURL)
+            statusLine
         }
         .padding(.horizontal, 8)
         .padding(.vertical, 6)
@@ -81,6 +101,7 @@ struct MRRowView: View {
         .padding(.horizontal, -8)
         .padding(.vertical, -6)
         .accessibilityElement(children: .contain)
+        .accessibilityValue(item.mergeIndicator.tooltip)
     }
 }
 
@@ -99,6 +120,28 @@ private struct DraftBadge: View {
     }
 }
 
+private struct ThreadsBadge: View {
+    let threads: ThreadSummary
+
+    var body: some View {
+        HStack(spacing: 3) {
+            Image(systemName: "bubble.left.and.bubble.right.fill")
+                .font(.system(size: 9, weight: .semibold))
+            Text("\(threads.resolved)/\(threads.resolvable)")
+                .font(.system(size: 10, weight: .bold))
+        }
+        .foregroundStyle(Semantic.Colors.notBlack)
+        .padding(.horizontal, 5)
+        .padding(.vertical, 1)
+        .background {
+            Capsule()
+                .fill(Semantic.Colors.notBlack.opacity(0.14))
+        }
+        .hoverTooltip(threads.displayText)
+        .accessibilityLabel(threads.displayText)
+    }
+}
+
 /// Reports mouse-down on the card. The pressed chrome is drawn around the row, including
 /// the status dots, which sit outside this button.
 private struct CardPressStyle: ButtonStyle {
@@ -113,10 +156,12 @@ private struct CardPressStyle: ButtonStyle {
     }
 }
 
-/// Stage circles, then the review circle. A fully green line means the MR can merge.
+/// Stage circles, then the review circle, then an optional merge mark.
+/// A fully green line means the MR can merge. Merged rows show only the solid merge mark.
 private struct StatusLine: View {
     let stages: [PipelineStage]
-    let approvals: ApprovalSummary
+    let approvals: ApprovalSummary?
+    var mergeIndicator: MergeIndicator = .none
     var interactive: Bool = true
     var onOpenURL: ((URL) -> Void)? = nil
 
@@ -137,8 +182,22 @@ private struct StatusLine: View {
                 stageControl(stage)
             }
 
-            reviewControl
-                .padding(.leading, stages.isEmpty ? 0 : Self.approvalGap)
+            if let approvals {
+                reviewControl(approvals)
+                    .padding(.leading, stages.isEmpty ? 0 : Self.approvalGap)
+            }
+
+            if let mergeKind = mergeIndicator.iconKind {
+                StatusDot(
+                    kind: mergeKind,
+                    tooltip: mergeIndicator.tooltip,
+                    showsTooltip: interactive
+                )
+                .padding(
+                    .leading,
+                    (stages.isEmpty && approvals == nil) ? 0 : Self.approvalGap
+                )
+            }
         }
         .fixedSize(horizontal: true, vertical: false)
         .layoutPriority(1)
@@ -176,7 +235,7 @@ private struct StatusLine: View {
     }
 
     @ViewBuilder
-    private var reviewControl: some View {
+    private func reviewControl(_ approvals: ApprovalSummary) -> some View {
         let dot = StatusDot(
             kind: approvals.iconKind,
             tooltip: approvals.tooltip,
@@ -331,6 +390,16 @@ private struct StatusDot: View {
                 .accessibilityAddTraits(isHighlighted ? [.isSelected] : [])
         } else {
             symbol
+        }
+    }
+}
+
+private extension MergeIndicator {
+    var iconKind: GitLabStatusIcon.Kind? {
+        switch self {
+        case .none: return nil
+        case .mergeTrain: return .mergeTrain
+        case .merged: return .merged
         }
     }
 }

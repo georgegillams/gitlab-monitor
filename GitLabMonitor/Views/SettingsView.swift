@@ -149,6 +149,24 @@ struct SettingsView: View {
                     }
                 }
 
+                Toggle(isOn: $settings.showThreadBadges) {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Show discussion threads")
+                        Text("Show how many review threads are resolved on each merge request.")
+                            .font(.caption)
+                            .foregroundStyle(Semantic.Colors.textDisabled)
+                    }
+                }
+
+                Toggle(isOn: $settings.showRecentlyMerged) {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Show recently merged")
+                        Text("Include merge requests you merged in the last 12 hours.")
+                            .font(.caption)
+                            .foregroundStyle(Semantic.Colors.textDisabled)
+                    }
+                }
+
                 Picker(selection: $settings.sortOrder) {
                     ForEach(MergeRequestSortOrder.allCases, id: \.self) { order in
                         Text(order.label).tag(order)

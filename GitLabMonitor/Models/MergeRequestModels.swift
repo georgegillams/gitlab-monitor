@@ -93,6 +93,38 @@ struct ApprovalSummary: Equatable, Codable {
     }
 }
 
+/// Resolvable discussion threads on a merge request.
+struct ThreadSummary: Equatable, Codable {
+    let resolvable: Int
+    let resolved: Int
+
+    static let empty = ThreadSummary(resolvable: 0, resolved: 0)
+
+    var hasThreads: Bool { resolvable > 0 }
+
+    var displayText: String {
+        "\(resolved) of \(resolvable) threads resolved"
+    }
+}
+
+/// How the purple merge mark next to approvals should draw, if at all.
+enum MergeIndicator: String, Equatable, Codable {
+    /// Open, and not on a merge train.
+    case none
+    /// Currently sitting on a merge train.
+    case mergeTrain
+    /// Merged recently (shown with a solid mark, without pipeline or approvals).
+    case merged
+
+    var tooltip: String {
+        switch self {
+        case .none: return ""
+        case .mergeTrain: return "In a merge train"
+        case .merged: return "Merged"
+        }
+    }
+}
+
 struct MergeRequestItem: Identifiable, Equatable, Codable {
     let id: String
     let instanceID: UUID
@@ -104,10 +136,16 @@ struct MergeRequestItem: Identifiable, Equatable, Codable {
     let webURL: URL?
     let stages: [PipelineStage]
     let approvals: ApprovalSummary
+    let threads: ThreadSummary
+    let mergeIndicator: MergeIndicator
+    /// When the merge request was merged, if it is a recently merged entry.
+    let mergedAt: Date?
     /// When the merge request was opened. Missing timestamps sort as the oldest.
     let createdAt: Date
     /// When the merge request was last edited. Missing timestamps sort as the oldest.
     let updatedAt: Date
+
+    var isMerged: Bool { mergeIndicator == .merged }
 }
 
 /// How a merge request title is shortened on the row.
@@ -189,7 +227,7 @@ enum MergeRequestSortOrder: String, Codable, CaseIterable {
     private func timestamp(of item: MergeRequestItem) -> Date {
         switch self {
         case .createdNewestFirst, .createdOldestFirst: return item.createdAt
-        case .modifiedNewestFirst, .modifiedOldestFirst: return item.updatedAt
+        case .modifiedNewestFirst, .modifiedOldestFirst: return item.mergedAt ?? item.updatedAt
         }
     }
 }
